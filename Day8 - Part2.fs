@@ -4,27 +4,39 @@ open System.Diagnostics
 
 let readInput (path:string)  = 
     [|
-    
         use sw = new StreamReader (path)
         while (not sw.EndOfStream) do
-        yield [|
+        let layers = [|
             for i in [0..5] do
             let layer = Array.init 25 (fun _ -> ' ') 
-            sw.ReadBlock(layer,0,25)
-            yield layer
+            let len = sw.ReadBlock(layer,0,25)
+            if len > 0
+            then 
+                if len = 25 
+                then yield layer
+                else 
+                    printfn "bad char(s) skipped: "
+                    [|0..(len - 1)|]
+                    |> Array.iter(fun y -> 
+                        printf "*%c*(ascii %d)" layer.[y] (int layer.[y])
+                    )
+                    printfn ""
         |]
-        
-
+        if layers.Length = 6 
+        then yield layers
+        else
+            if layers.Length > 0 
+            then
+                printfn "bad image: "
+                layers |>
+                    Array.iter(fun x -> 
+                        x |> Array.iter(fun y ->
+                            printf "%c(%d)" y (int y)
+                        )
+                        printfn ""
+                    )
+                printfn "skipping the above bad image"
     |]
-
-let GetNumof (x: char [] []) (c:Char) =
-    x
-    |> Array.map(fun y ->
-        y
-        |> Array.filter(fun z -> z = c)
-        |> Array.length
-    )
-    |> Array.sum
 
 let compute (state: char [] [] ) (t: char [] [] ) : char [] []  =
           [|
@@ -43,7 +55,6 @@ let main _ =
     let input = readInput @"C:\dev\FSharp\AoC2019\Day8\input.txt"
     let info =
         input
-        |> Array.take(input.Length - 1)
         |> Array.fold (fun state t ->
             compute state t
             )
