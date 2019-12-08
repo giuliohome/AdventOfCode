@@ -55,12 +55,14 @@ let main _ =
 
 
     printfn "The answer is " 
+    printfn ""
     info
     |> Array.iter(fun x -> 
         x 
-        |> Array.iter(fun y -> printf "%c" (if y = '0' then 'X' else ' ')) 
+        |> Array.iter(fun y -> printf "%c" (if y = '1' then 'X' else ' ')) 
         printfn ""
     )
+    printfn ""
     timer.Stop()
     printfn "done in (%d) ms !" timer.ElapsedMilliseconds
     Console.ReadKey() |> ignore
