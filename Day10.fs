@@ -1,119 +1,92 @@
 ﻿open System
 open System.IO
-open System.Diagnostics
+
+type Point = Coord of int * int 
+    with 
+    member this.X = 
+        let (Coord (x,y)) = this
+        x
+    member this.Y = 
+        let (Coord (x,y)) = this
+        y
+    static member (-) ((p1:Point),(p2:Point)) =
+        Coord (p1.X - p2.X, p1.Y - p2.Y )
+    member this.angle = Math.Atan2((float) -this.Y, (float) this.X) // y from top reversed
+    member this.square_radius = (this.X * this.X) + (this.Y * this.Y)
 
 
-let getInput() = [|
-        let sr = new StreamReader("C:\dev\FSharp\AdventOfCode\Day10\input.txt")
-        while (not sr.EndOfStream) do
-            yield
-                sr.ReadLine().ToCharArray()
-                |> Array.map(fun c -> c='#')
-    |]
-
-let sameline 
-    (x1:int,y1:int) (x2:int,y2:int) (x3:int,y3:int) 
-    : bool = 
-            (y1 = y2 && y1 = y3 && x1 <> x2 && x1 <> x3 )
-            ||
-            ((y1 <> y2) && (y1 <> y3)
-                && ((x1 - x2) * (y1 - y3) 
-                        = (x1 - x3) * (y1 - y2)))
-
-let points (x1:int,y1:int) (map: (int * int) []) =
-    map
-    |> Array.except([|(x1,y1)|])
-    |> Array.fold(fun p (x2:int,y2:int) ->
-            if 
-                map 
-                |> Array.except([|(x1,y1);(x2,y2)|])
-                |> Array.exists(fun (x3:int,y3:int) ->
-                        (sameline (x1,y1) (x2,y2) (x3,y3))
-                        && ( (x3 > x1 && x3 - x1 < x2 - x1) || ((x3 < x1 && x3 - x1 > x2 - x1) ) || (x1 = x2 && x1 = x3))
-                        && ((y3 > y1 && y3 - y1 < y2 - y1) || (y3 < y1 && y3 - y1 > y2 - y1) || (y1 = y2 && y1 = y3))
-                    )
-            then p 
-            else
-                //printfn "%A can see %A" (x1,y1) (x2,y2)
-                p + 1
-        )
-        0
-
-let orderedpoints (x1:int,y1:int) (map: (int * int) []) =
-    let list = 
-        map
-        |> Array.except([|(x1,y1)|])
-        |> Array.fold(fun (p: (int * int) list) (x2:int,y2:int) ->
-                if 
-                    map 
-                    |> Array.except([|(x1,y1);(x2,y2)|])
-                    |> Array.exists(fun (x3:int,y3:int) ->
-                            (sameline (x1,y1) (x2,y2) (x3,y3))
-                            && ( (x3 > x1 && x3 - x1 < x2 - x1) || ((x3 < x1 && x3 - x1 > x2 - x1) ) || (x1 = x2 && x1 = x3))
-                            && ((y3 > y1 && y3 - y1 < y2 - y1) || (y3 < y1 && y3 - y1 > y2 - y1) || (y1 = y2 && y1 = y3))
-                        )
-                then p 
-                else
-                    //printfn "%A can see %A" (x1,y1) (x2,y2)
-                    (x2,y2) :: p
-            )
-            []
-    list
+let visibileFrom (p1:Point) (map:Point[]) : Point[] =
+    map 
+    |> Array.except([|p1|])
+    |> Array.filter(
+        fun p2 ->
+            map
+            |> Array.except([|p1; p2|])
+            |> Array.exists(
+                fun p3 ->
+                (p2 - p1).angle = (p3 - p1).angle
+                &&
+                (p2 - p1).square_radius > (p3 - p1).square_radius 
+            ) |> not
+    )
 
 [<EntryPoint>]
 let main _ =
-    let timer = new Stopwatch()
-    timer.Start()
 
-    let input = getInput()
-    let map =
-        [|
-            for i in [|0..input.Length - 1|] do
-                for j in [|0 .. input.[i].Length - 1|] do
-                    if input.[i].[j] then yield (j,i)
-        |]
-    
-    let ((xb,yb), best) = 
-        map
-        |> Array.fold
-            (fun ((x,y),p) (t1,t2) ->
-                let t3 = points (t1,t2) map
-                //printfn "%A has %d points" (t1,t2) t3
-                if (t3 > p) 
-                then ((t1,t2),t3)
-                else ((x,y),p)
-            )
-            ((-1,-1),-1)
-
-    printfn "Answer Part 1 is: %d for x %d, y %d"  best xb yb
-    //Answer is: 296 for x 17, y 23
-
-    let list = 
-        orderedpoints (xb,yb) map
-        |> List.sortBy(fun (x,y) -> 
-            (
-                match x - xb >= 0 , y - yb <= 0 with
-                | true, true -> 0
-                | true, false -> 1
-                | false, false -> 2
-                | false, true -> 3
-                
-            , 
-                 match x - xb >= 0 , y - yb <= 0 with
-                | true, true -> Math.Atan(((float)(x - xb))/((float)(yb - y)))
-                | true, false -> - Math.Atan(((float)(x - xb))/((float)(y - yb)))
-                | false, false -> Math.Atan(((float)(xb - x))/((float)(y - yb)))
-                | false, true -> - Math.Atan(((float)(xb - x))/((float)(yb - y)))
-                
-            
+    use sw = new StreamReader("C:\dev\FSharp\AoC2019\DayN\input.txt")
+    let input = sw.ReadToEnd()
+    let stars =
+        input.Split("\n")
+        |> Array.mapi(
+            fun y line ->
+            line.ToCharArray()
+            |> Array.mapi(
+                fun x c ->
+                    if c = '#'
+                    then Some (Coord (x,y))
+                    else None
             )
         )
+        |> Array.concat
+        |> Array.choose id
     
-    //list |> List.iteri(fun i t -> printfn "%d %A" i t)
+    let best =
+        stars
+        |> Array.map(
+            fun p1 ->
+                (stars
+                |> visibileFrom p1, p1)
+        ) 
+        |> Array.sortByDescending (fst >> Array.length)
+        |> Array.head
+        
 
-    printfn "Answer Part 2 is %d for %A" ((fst list.[199])*100 + (snd list.[199])) list.[199]
+    let firstAnswer =
+        best
+        |> fst
+        |> Array.length 
+    let secondAnswer =
+        let guess =
+            best 
+            |> fst
+            |> Array.sortBy(fun p -> 
+                let vect = p - (snd best) in
+                (
+                    match vect.X >= 0, vect.Y <= 0 with
+                    | true, true -> 0
+                    | true, false -> 1
+                    | false, false -> 2
+                    | false, true -> 3
+                    , // see https://docs.microsoft.com/en-us/dotnet/api/system.math.atan2
+                    match vect.Y <= 0 with
+                    | true -> -vect.angle
+                    | false -> vect.angle
+                )
+            )
+        (guess.[199].X * 100) + guess.[199].Y 
+         
 
-    timer.Stop()
-    printfn "done in (%d) ms !" timer.ElapsedMilliseconds
+    printfn "First answer is: %d" firstAnswer
+    printfn "Second answer is: %d" secondAnswer
     Console.ReadKey() |> ignore
     0    
