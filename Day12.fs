@@ -180,8 +180,9 @@ let main _ =
         |> Seq.last
 
     printfn "Answer Part 1 is %d" answer1
-
-
+     
+    //part 2 optimization is inspired by the independent axis trick seen in the python by cyphase found below
+    //seen in the python by cyphase found on https://www.reddit.com/r/adventofcode/comments/e9j0ve/2019_day_12_solutions/fajp9zu/
     let (stepsx, stepsy, stepsz) = 
         Seq.unfold
             (solver2 start)
