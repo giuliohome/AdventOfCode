@@ -1,23 +1,30 @@
 ﻿open System
+open System
 open System.IO
 
 type MoonPosition = {x:int; y:int; z: int}
+    with
+    static member Parse (str:string) =
+        let moon = 
+            str
+                .Replace("<x=","").Replace(", y=",",")
+                .Replace(", z=",",").Replace(">","")
+                .Split(',')
+        {
+            x = Int32.Parse(moon.[0]) 
+            y = Int32.Parse(moon.[1])
+            z = Int32.Parse(moon.[2])
+        }
 
-let moons : MoonPosition[] =  [|    
-    {x = 9; y = 13; z = -8};
-    {x = -3; y = 16; z = -17};
-    {x = -4; y = 11; z = -10};
-    {x = 0; y = -2; z = -2};
-|]
+let moons : MoonPosition[] =  
+    use sw = new StreamReader("C:\dev\FSharp\AoC2019\Day12\input.txt")
+    [|
+        while (not sw.EndOfStream) do
+        yield 
+            (sw.ReadLine()
+            |> MoonPosition.Parse)
+    |]
 let question1steps = 1000
-
-//let moons : MoonPosition[] =  [|    
-//    {x = -1; y = 0; z = 2};
-//    {x = 2; y = -10; z = -7};
-//    {x = 4; y = -8; z = 8};
-//    {x = 3; y = 5; z = -1};
-//|]
-//let question1steps = 10
 
 type MoonMomentum = 
     {pos: MoonPosition; vx: int; vy:int; vz: int}
