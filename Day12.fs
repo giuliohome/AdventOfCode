@@ -200,7 +200,7 @@ let main _ =
     let lcm_x_y = lcm ((int64)stepsx) ((int64)stepsy)
     let answer2 = lcm lcm_x_y ((int64)stepsz) 
 
-    printfn "Answer Part 2 is %A" answer2
+    printfn "Answer Part 2 is %d" answer2
     
     Console.ReadKey() |> ignore
     0    
