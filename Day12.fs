@@ -103,71 +103,76 @@ let solver1 (totalsteps: int)
             then nextstate.energy()
             else 0
         Some (finalenergy, nextstate)
+
+type Axis = 
+    | Found of int 
+    | NotFound
+    with
+    member this.found =
+        match this with
+        | NotFound -> false
+        | _ -> true
         
 let solver2 (start:State)
-    : (State * (bool * int) * (bool * int) * (bool * int)) -> 
-    ((int * int * int) *(State * (bool * int) * (bool * int) * (bool * int))  ) option =
-    fun (state, (foundx, stepsx), (foundy, stepsy), (foundz, stepsz)) -> 
-        if (foundx && foundy && foundz)
+    : (State * Axis * Axis * Axis) -> 
+    ((int * int * int) option *(State * Axis * Axis * Axis)  ) option =
+    fun (state, xaxis, yaxis, zaxis) -> 
+        if (xaxis.found && yaxis.found && zaxis.found)
         then None else
         if state.steps % 100000 = 0 then printfn "arrived at %d steps ..." state.steps
-        let foundx = 
-            foundx ||
-            state.momenta
-            |> Array.forall( fun a ->
-                start.momenta
-                |> Array.exists( fun b ->
-                    a.pos.x = b.pos.x
-                    &&
-                    a.vx = b.vx)
-                    )
-        let stepsx =
-            if stepsx > 0
-            then stepsx 
-            else
-                if foundx
-                then state.steps
-                else 0
+        let xaxis = 
+            match xaxis with
+            | Found x -> Found x
+            | NotFound ->
+                if (state.momenta
+                |> Array.forall( fun a ->
+                    start.momenta
+                    |> Array.exists( fun b ->
+                        a.pos.x = b.pos.x
+                        &&
+                        a.vx = b.vx)
+                        ))
+                 then Found state.steps
+                 else NotFound
 
-        let foundy = 
-            foundy ||
-            state.momenta
-            |> Array.forall( fun a ->
-                start.momenta
-                |> Array.exists( fun b ->
-                    a.pos.y = b.pos.y
-                    &&
-                    a.vy = b.vy)
-                    )
-        let stepsy =
-            if stepsy > 0
-            then stepsy 
-            else
-                if foundy
-                then
-                    state.steps
-                else 0
+        let yaxis = 
+            match yaxis with
+            | Found y -> Found y
+            | NotFound ->
+                if (state.momenta
+                |> Array.forall( fun a ->
+                    start.momenta
+                    |> Array.exists( fun b ->
+                        a.pos.y = b.pos.y
+                        &&
+                        a.vy = b.vy)
+                        ))
+                 then Found state.steps
+                 else NotFound
 
-        let foundz = 
-            foundz||
-            state.momenta
-            |> Array.forall( fun a ->
-                start.momenta
-                |> Array.exists( fun b ->
-                    a.pos.z = b.pos.z
-                    &&
-                    a.vz = b.vz)
-                    )
-        let stepsz =
-            if stepsz > 0
-            then stepsz 
-            else
-                if foundz
-                then state.steps
-                else 0
+
+        let zaxis = 
+            match zaxis with
+            | Found z -> Found z
+            | NotFound ->
+                if (state.momenta
+                |> Array.forall( fun a ->
+                    start.momenta
+                    |> Array.exists( fun b ->
+                        a.pos.z = b.pos.z
+                        &&
+                        a.vz = b.vz)
+                        ))
+                 then Found state.steps
+                 else NotFound
+
+        let result =
+            match xaxis, yaxis, zaxis with
+            | Found x, Found y, Found z -> Some (x, y, z)
+            | _ -> None
 
         let nextstate = state.next()
-        Some ((stepsx, stepsy, stepsz), (nextstate, (foundx, stepsx), (foundy, stepsy), (foundz, stepsz)))
+        Some (result, (nextstate,  xaxis, yaxis, zaxis))
 
 
 [<EntryPoint>]
@@ -184,10 +189,11 @@ let main _ =
     //part 2 optimization is inspired by the independent axis trick seen in the python by cyphase found below
     //seen in the python by cyphase found on https://www.reddit.com/r/adventofcode/comments/e9j0ve/2019_day_12_solutions/fajp9zu/
     let (stepsx, stepsy, stepsz) = 
-        Seq.unfold
+        (Seq.unfold
             (solver2 start)
-            (start.next(), (false, 0), (false, 0), (false, 0))
-        |> Seq.last
+            (start.next(), NotFound, NotFound, NotFound)
+        |> Seq.last).Value
+        
 
     let rec gcd (a:int64) (b:int64) =
       if b = (int64)0 
