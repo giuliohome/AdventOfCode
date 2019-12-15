@@ -226,7 +226,7 @@ let main _ =
         if (needed <= tri)
         then    
             countFuel <- countFuel + target
-            if countFuel > 3848998L then failwith "error too much fuel!"
+            //if countFuel > 3848998L then failwith "error too much fuel!"
         else 
             ar <- Dictionary(before)
             needed <- before_needed
