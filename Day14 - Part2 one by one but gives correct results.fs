@@ -50,6 +50,7 @@ type Formula = {fromComps: Component[]; toComp:Component} with
         if this.fromComps.[0].name <> "ORE" then failwith "must be ore"
         if this.toComp.name <> c.name then failwith "wrong component"
         let need = (int) (Math.Ceiling ( (decimal)c.needs / (decimal)this.toComp.needs))
+        ar.[c.name] <- ar.[c.name] + ( need * this.toComp.needs) - c.needs
         need * ((int)this.fromComps.[0].needs)
 
 
