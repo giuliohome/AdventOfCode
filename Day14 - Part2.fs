@@ -25,17 +25,7 @@ type Formula = {fromComps: Component[]; toComp:Component} with
                 parts.[0].Split(',')
                 |> Array.map Component.Parse
         }
-    member this.perNeedWithoutWaste (need:int64) : Formula =
-        if this.toComp.needs <> 1L then failwith "original fuel formula is not 1"
-        {this with
-            toComp =
-                { this.toComp with 
-                    needs = need}
-            fromComps = 
-                this.fromComps 
-                |> Array.map(fun c -> 
-                    {c with needs = c.needs * need}
-                )}
+    
     member this.perNeed (need:int64) : Formula =
         let mult = (int64) (Math.Ceiling ((decimal) need / (decimal)this.toComp.needs))
         let name = this.toComp.name
