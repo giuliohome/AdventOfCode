@@ -6,39 +6,40 @@ open System.IO
 open Checked
 
 
-let parse (str:string) : int list =
+let parse (str:string) : int[] =
     str.ToCharArray()
     |> Array.map(fun c -> int <| string c)
-    |> Array.toList
 
     
 
 [<EntryPoint>]
 let main _ =
     
-    use sr = new StreamReader("C:\dev\FSharp\AdventOfCode\Day16\input.txt")
+    use sr = new StreamReader("C:\dev\FSharp\AoC2019\Day16\input.txt")
     let input = 
         sr.ReadLine()
         |> parse 
 
     let offset = 
         input
-            |> List.take 7
-            |> List.fold
+            |> Array.take 7
+            |> Array.fold
                 (fun acc x -> 10 * acc + x)
                 0
     let n = 10000 * input.Length - offset
     let valuefolded =
-        System.Collections.Generic.List(
-            [0..( (n - (offset % input.Length) - 1) / input.Length)]
-            |> List.fold
-                (fun acc _ -> List.append acc input)
+            [|0..( (n - (offset % input.Length) - 1) / input.Length)|]
+            |> Array.fold
+                (fun acc _ -> Array.append acc input)
                 (input
-                |> List.skip (offset % input.Length)))
+                |> Array.skip (offset % input.Length))
+
+            
     // https://stackoverflow.com/questions/59412516/is-it-possible-to-use-immutable-collections-in-this-case
-    [0..99]
-    |> List.iter (
+    [|0..99|]
+    |> Array.iter (
         fun repeat ->
+            printfn "%d" repeat
             [0..(n-1)] 
             |> List.rev
             |> List.fold (fun acc i ->
