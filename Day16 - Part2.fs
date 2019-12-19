@@ -35,12 +35,18 @@ let main _ =
                 (fun acc _ -> List.append acc input)
                 (input
                 |> List.skip (offset % input.Length)))
-    for repeat in [0..99] do  
-        let mutable acc = 0
-        for i in ([0..(n-1)] |> List.rev) do
-            valuefolded.[i] <- Math.Abs(acc + valuefolded.[i]) % 10
-            acc <- valuefolded.[i]
-        
+    // https://stackoverflow.com/questions/59412516/is-it-possible-to-use-immutable-collections-in-this-case
+    [0..99]
+    |> List.iter (
+        fun repeat ->
+            [0..(n-1)] 
+            |> List.rev
+            |> List.fold (fun acc i ->
+                valuefolded.[i] <- Math.Abs(acc + valuefolded.[i]) % 10
+                valuefolded.[i]) 0
+            |> ignore
+        ) 
+
     let answer2 = valuefolded |> Seq.take 8
 
     printfn "Answer Part 2 is %s" (String.Join("",answer2))
