@@ -39,10 +39,10 @@ let main _ =
     [|0..99|]
     |> Array.iter (
         fun repeat ->
-            printfn "%d" repeat
-            [0..(n-1)] 
-            |> List.rev
-            |> List.fold (fun acc i ->
+            //printfn "%d" repeat
+            [|0..(n-1)|] 
+            |> Array.rev
+            |> Array.fold (fun acc i ->
                 valuefolded.[i] <- Math.Abs(acc + valuefolded.[i]) % 10
                 valuefolded.[i]) 0
             |> ignore
