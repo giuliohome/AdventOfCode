@@ -46,9 +46,9 @@ let main _ =
                     (fun state_i acc -> Math.Abs(acc + state_i) % 10) 
                     state 0
 
-        ) (valuefolded0 |> Array.take n)
+        ) (valuefolded |> Array.take n)
 
-    let answer2 = valuefolded |> Seq.take 8
+    let answer2 = answer2_all |> Seq.take 8
 
     printfn "Answer Part 2 is %s" (String.Join("",answer2))
     
