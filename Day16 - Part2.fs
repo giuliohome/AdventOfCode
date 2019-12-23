@@ -36,17 +36,17 @@ let main _ =
 
             
     // https://stackoverflow.com/questions/59412516/is-it-possible-to-use-immutable-collections-in-this-case
+    // https://stackoverflow.com/a/59453740
+    let answer2_all =
     [|0..99|]
-    |> Array.iter (
-        fun repeat ->
-            //printfn "%d" repeat
-            [|0..(n-1)|] 
-            |> Array.rev
-            |> Array.fold (fun acc i ->
-                valuefolded.[i] <- Math.Abs(acc + valuefolded.[i]) % 10
-                valuefolded.[i]) 0
-            |> ignore
-        ) 
+    |> Array.fold (
+        fun (state:int[]) repeat ->
+
+                Array.scanBack 
+                    (fun state_i acc -> Math.Abs(acc + state_i) % 10) 
+                    state 0
+
+        ) (valuefolded0 |> Array.take n)
 
     let answer2 = valuefolded |> Seq.take 8
 
