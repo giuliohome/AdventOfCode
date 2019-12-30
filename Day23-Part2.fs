@@ -20,11 +20,13 @@ let main _ =
     let sw = Stopwatch()
     sw.Start()
     
-    let mutable network = 
+    let network_mem = 
         [|
             for address in 0L..49L do
                 yield bootstrap "C:\dev\FSharp\AoC2019\Day23\input.txt" [|address|]
         |]
+    let mutable network = network_mem |> Array.map snd
+    let memories = network_mem |> Array.map fst
 
     let mutable stop = false
     let mutable found : int64 Option = None
@@ -88,7 +90,7 @@ let main _ =
                     then
                         //Debug.WriteLine(sprintf "Running %d" address) 
                         idles.[address] <-  {idles.[address] with noOutput = true}
-                        yield runCmd network.[address] 
+                        yield runCmd network.[address] &memories.[address]
                     else
                         idles.[address] <-  {idles.[address] with noOutput = false}
                         if network.[address].output.[0] = 255L 
@@ -96,7 +98,7 @@ let main _ =
                             //Debug.WriteLine(sprintf "Nat from %d receives Y %d" address network.[address].output.[2])
                             natY <- Some network.[address].output.[2]
                             natX <- Some network.[address].output.[1]
-                            yield runCmd {network.[address] with output = [||] }
+                            yield runCmd {network.[address] with output = [||] } &memories.[address]
                         else 
                             //Debug.WriteLine(sprintf "%d %d arrived to %d having %d" 
                                 //network.[address].output.[1] network.[address].output.[2] network.[address].output.[0]
@@ -109,20 +111,20 @@ let main _ =
                             
                             //Debug.WriteLine(sprintf "Running %d after output %A" address network.[address].output) 
                             //Debug.WriteLine(sprintf "Queue %d is %A" network.[address].output.[0] net_input.[(int)network.[address].output.[0]]) 
-                            yield runCmd {network.[address] with output = [||] }
+                            yield runCmd {network.[address] with output = [||] } &memories.[address]
                         
 
             |]
         if network.Length <> 50 then failwith "network lost"
         network_idle <-
             idles
-            |> Array.forall(fun idle -> idle.noOutput && idle.queueEmpty && idle.tryReceive >= 3)
+            |> Array.forall(fun idle -> idle.noOutput && idle.queueEmpty && idle.tryReceive >= 2)
         if network_idle then Debug.WriteLine("network idle!")
 
     sw.Stop()
     match found with
     | Some answer2 -> 
-        printfn "Answer Part 2 is %d in %d ms" answer2 sw.ElapsedMilliseconds
+        printfn "Answer Part 2 is %d\n\nexecuted in %d ms" answer2 sw.ElapsedMilliseconds
     | None -> 
         printfn "ops... answer part 2 not found after %d ms" sw.ElapsedMilliseconds
     
