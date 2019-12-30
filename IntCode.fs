@@ -49,9 +49,7 @@ module IntCode =
             | Immediate _ -> failwith "dest can't be immediate"
             | MemoryDest dest ->
                 if dest >= mem_size then failwith "please extend memory"
-                before.memory
-                |> Array.mapi(fun pos value ->
-                    if pos = dest then
+                before.memory.[dest] <-
                         match opcode with
                         | 1 -> 
                             (+)
@@ -69,8 +67,7 @@ module IntCode =
                                     = (getParamVal mode_op2 before.memory (before.position + 2) before.base_addr)
                                ) then (int64)1 else (int64)0
                         | _ -> failwith "wrong position"
-                    else value
-                )
+                before.memory
             | Skip -> before.memory
         let output =
             match opcode with

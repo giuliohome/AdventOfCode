@@ -53,11 +53,11 @@ let main _ =
                                         {idles.[address] with tryReceive= idles.[address].tryReceive + 1 ; queueEmpty = true}
                                     match natX, natY, network_idle, address with
                                     | Some x, Some y, true, 0 -> 
-                                        Debug.WriteLine(sprintf "Nat to address 0 %d" y)
+                                        //Debug.WriteLine(sprintf "Nat to address 0 %d" y)
                                         idles.[address] <- {idles.[address] with tryReceive=0; queueEmpty = false}
                                         network_idle <- false
                                         if found = Some y then
-                                            Debug.WriteLine(sprintf "Found ! %d" y)
+                                            //Debug.WriteLine(sprintf "Found ! %d" y)
                                             stop <- true
                                         else 
                                             found <- Some y
@@ -67,7 +67,7 @@ let main _ =
                                      
                                 else
                                     idles.[address] <-  {idles.[address] with tryReceive=0; queueEmpty = false}
-                                    Debug.WriteLine(sprintf "%d received %A input" address net_input.[address]) 
+                                    //Debug.WriteLine(sprintf "%d received %A input" address net_input.[address]) 
                                     net_input.[address]
                             yield {network.[address] with phase = phase; suspended = false }
                             net_input.[address] <- [||]
@@ -93,22 +93,22 @@ let main _ =
                         idles.[address] <-  {idles.[address] with noOutput = false}
                         if network.[address].output.[0] = 255L 
                         then
-                            Debug.WriteLine(sprintf "Nat from %d receives Y %d" address network.[address].output.[2])
+                            //Debug.WriteLine(sprintf "Nat from %d receives Y %d" address network.[address].output.[2])
                             natY <- Some network.[address].output.[2]
                             natX <- Some network.[address].output.[1]
                             yield runCmd {network.[address] with output = [||] }
                         else 
-                            Debug.WriteLine(sprintf "%d %d arrived to %d having %d" 
-                                network.[address].output.[1] network.[address].output.[2] network.[address].output.[0]
-                                net_input.[(int)network.[address].output.[0]].Length
-                                )
+                            //Debug.WriteLine(sprintf "%d %d arrived to %d having %d" 
+                                //network.[address].output.[1] network.[address].output.[2] network.[address].output.[0]
+                                //net_input.[(int)network.[address].output.[0]].Length
+                                //)
                             net_input.[(int)network.[address].output.[0]] <-
                                 Array.append
                                     net_input.[(int)network.[address].output.[0]]
                                     [|network.[address].output.[1]; network.[address].output.[2]|]
                             
-                            Debug.WriteLine(sprintf "Running %d after output %A" address network.[address].output) 
-                            Debug.WriteLine(sprintf "Queue %d is %A" network.[address].output.[0] net_input.[(int)network.[address].output.[0]]) 
+                            //Debug.WriteLine(sprintf "Running %d after output %A" address network.[address].output) 
+                            //Debug.WriteLine(sprintf "Queue %d is %A" network.[address].output.[0] net_input.[(int)network.[address].output.[0]]) 
                             yield runCmd {network.[address] with output = [||] }
                         
 
@@ -116,12 +116,15 @@ let main _ =
         if network.Length <> 50 then failwith "network lost"
         network_idle <-
             idles
-            |> Array.forall(fun idle -> idle.noOutput && idle.queueEmpty && idle.tryReceive >= 10)
+            |> Array.forall(fun idle -> idle.noOutput && idle.queueEmpty && idle.tryReceive >= 3)
         if network_idle then Debug.WriteLine("network idle!")
 
     sw.Stop()
-
-    printfn "Answer Part 2 is %A in %d ms" found sw.ElapsedMilliseconds
+    match found with
+    | Some answer2 -> 
+        printfn "Answer Part 2 is %d in %d ms" answer2 sw.ElapsedMilliseconds
+    | None -> 
+        printfn "ops... answer part 2 not found after %d ms" sw.ElapsedMilliseconds
     
     Console.ReadKey() |> ignore
     0    
