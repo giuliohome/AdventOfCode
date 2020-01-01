@@ -161,7 +161,9 @@ let main _ =
     if debug then show visited
     sw.Stop()
 
-    if found then printfn "Answer Part 1 is %d" distance
+    if found then 
+        show visited
+        printfn "Answer Part 1 is %d" distance
     else printfn "Answer Part 1 not found!"
    
     printfn "executed in %d ms"  sw.ElapsedMilliseconds
