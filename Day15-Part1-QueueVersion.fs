@@ -72,8 +72,7 @@ let main _ =
             status <- runCmd status &memory
         // https://stackoverflow.com/questions/59552476/copyofstruct-not-defined?noredirect=1
         // https://github.com/dotnet/fsharp/issues/8069
-        let output, q = MyQueue.dequeue status.output
-        status.output <- q
+        let output = MyQueue.dequeue &status.output
         visited <- visited.Add( (position |> moveTo move) , track output )
         match output with 
         //because of the reply of 2, you know you've found the oxygen system
@@ -88,8 +87,7 @@ let main _ =
             status.suspended <- false
             while not (status.suspended || status.finished) do
                 status <- runCmd status &memory
-            let output, q = MyQueue.dequeue status.output
-            status.output <- q
+            let output = MyQueue.dequeue &status.output
             if output <> 1L then failwith "path changed"
             position <- position |> moveTo (back move)
             distance <- distance - 1
@@ -98,14 +96,12 @@ let main _ =
             ()
         | _ -> failwith "wrong output"
     
-    let mutable way = [||]
+    
     while not found && MyQueue.length possible_ways > 0 do
         if debug then show visited
-        let (way_, possible_ways_) = dequeue possible_ways
+        let way = dequeue &possible_ways
         // https://github.com/dotnet/fsharp/issues/8069
         // https://stackoverflow.com/questions/59552476/copyofstruct-not-defined?noredirect=1&lq=1
-        way <- way_
-        possible_ways <- possible_ways_
         if position.X <> 0 || position.Y <> 0 || distance <> 0 then failwith "position is not initial"
 
         for move in way do
@@ -113,8 +109,7 @@ let main _ =
             status.suspended <- false
             while not <| status.suspended || status.finished do
                 status <- runCmd status &memory
-            let output, q = MyQueue.dequeue status.output
-            status.output <- q
+            let output = MyQueue.dequeue &status.output
             if output <> 1L then failwith "path changed"
             distance <- distance + 1
             position <- position |> moveTo move
@@ -126,8 +121,7 @@ let main _ =
             status.suspended <- false
             while not (status.suspended || status.finished) do
                 status <- runCmd status &memory
-            let output, q = MyQueue.dequeue status.output
-            status.output <- q
+            let output = MyQueue.dequeue &status.output
             visited <- visited.Add( (position |> moveTo move) , track output )
             match output with 
             //because of the reply of 2, you know you've found the oxygen system
@@ -143,8 +137,7 @@ let main _ =
                 status.suspended <- false
                 while not (status.suspended || status.finished) do
                     status <- runCmd status &memory
-                let output, q = MyQueue.dequeue status.output
-                status.output <- q
+                let output = MyQueue.dequeue &status.output
                 if output <> 1L then failwith "path changed"
                 distance <- distance - 1
                 position <- position |> moveTo (back move)
@@ -159,8 +152,7 @@ let main _ =
                 status.suspended <- false
                 while not <| status.suspended || status.finished do
                     status <- runCmd status &memory
-                let output, q = MyQueue.dequeue status.output
-                status.output <- q
+                let output = MyQueue.dequeue &status.output
                 if output <> 1L then failwith "path changed"
                 distance <- distance - 1
                 position <- position |> moveTo (back move)

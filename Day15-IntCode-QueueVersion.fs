@@ -60,11 +60,10 @@ module IntCode =
                             (getParamVal mode_op1 &memory (before.position + 1) before.base_addr)
                             (getParamVal mode_op2 &memory (before.position + 2) before.base_addr)
                     | 3L ->
-                        let (a, q) = MyQueue.dequeue before.phase
+                        MyQueue.dequeue &before.phase
                         // https://stackoverflow.com/questions/59552476/copyofstruct-not-defined?noredirect=1
                         // https://github.com/dotnet/fsharp/issues/8069
-                        before.phase <- q
-                        a
+                        //before.phase <- q
                     | 7L -> if ((getParamVal mode_op1 &memory (before.position + 1) before.base_addr) 
                                   < (getParamVal mode_op2 &memory (before.position + 2) before.base_addr)
                                 ) then 1L else 0L
