@@ -2,17 +2,12 @@
 open System.IO
 open Checked
 open System.Diagnostics
+open AoC2019.IntCode
 open System.Collections
 open MyQueue
 //https://adventofcode.com/2019/day/15   
 
 type Position = {X:int;Y:int}
-
-let swap (x: byref<'a>) (y: byref<'a>) =
-    let temp = x
-    x <- y
-    y <- temp
-
 
 [<EntryPoint>]
 let main _ =
@@ -20,17 +15,255 @@ let main _ =
     let sw = Stopwatch()
     sw.Start()
 
-    let a, b = 0, 1
-    Array.unfold
-        (fun (a, b) ->
-        if a >= 3 then None else
-        let a = a + 1
-        let a,b = b,a 
-        let b = b + 2 
-        printfn "%d %d" a b
-        Some (a + b, (a, b)) ) (a, b)
-        |> Array.iter (printfn "a+b=%d")
+    let mutable (memory, status) = bootstrap "C:\dev\FSharp\AoC2019\Day15\input.txt" MyQueue.empty
+    let debug = false
+    let mutable found = false
+    let mutable distance = 0
+    let mutable possible_ways : queue<int64[]> = MyQueue.empty
+    let mutable visited : Map<Position,char> = Map.empty
+    let mutable position = {X=0;Y=0}
 
+    let track = function
+    //because of the reply of 2, you know you've found the oxygen system
+        | 2L -> 'O'
+     //a reply of 1 means the movement was successful
+        | 1L -> '.'
+    //If it replies with 0, you know that location is a wall
+        | 0L -> '#'
+        | _ -> failwith "can't track it"
+
+
+    let show (visited:Map<Position,char>) =
+        let visited_keys = visited |> Map.toArray |> Array.map fst
+        let y = visited_keys |> Array.map(fun p -> p.Y)
+        let yMin = y |> Array.min
+        let yMax = y |> Array.max
+        let x = visited_keys |> Array.map(fun p -> p.X)
+        let xMin = x |> Array.min
+        let xMax = x |> Array.max
+        for y in [|yMin..yMax|] |> Array.rev do
+            for x in xMin..xMax do
+                 visited
+                 |> Map.tryFind {X=x;Y=y}
+                 |> Option.fold (fun _ c -> c) ' ' 
+                 |> printf "%c"
+            printfn ""
+            
+
+    //Only four movement commands are understood: north (1), south (2), west (3), and east (4).
+    let back = function
+        | 1L -> 2L
+        | 2L -> 1L
+        | 3L -> 4L
+        | 4L -> 3L
+        | _ -> failwith "wrong direction"
+    let moveTo = function
+        | 1L -> fun position -> {position with Y = position.Y + 1}
+        | 2L -> fun position -> {position with Y = position.Y - 1}
+        | 3L -> fun position -> {position with X = position.X - 1}
+        | 4L -> fun position -> {position with X = position.X + 1}
+        | _ -> failwith "wrong direction" 
+    for move in [1L..4L] do
+        if found then () else 
+        status.phase <- MyQueue.enqueue status.phase move
+        status.suspended <- false
+        while not (status.suspended || status.finished) do
+            status <- runCmd status &memory
+        // https://stackoverflow.com/questions/59552476/copyofstruct-not-defined?noredirect=1
+        // https://github.com/dotnet/fsharp/issues/8069
+        let output = MyQueue.dequeue &status.output
+        visited <- visited.Add( (position |> moveTo move) , track output )
+        match output with 
+        //because of the reply of 2, you know you've found the oxygen system
+        | 2L -> 
+            found <- true
+        //a reply of 1 means the movement was successful
+        | 1L -> 
+            position <- position |> moveTo move
+            distance <- distance + 1
+            possible_ways <- enqueue possible_ways [|move|]
+            status.phase <- MyQueue.enqueue status.phase <| back move
+            status.suspended <- false
+            while not (status.suspended || status.finished) do
+                status <- runCmd status &memory
+            let output = MyQueue.dequeue &status.output
+            if output <> 1L then failwith "path changed"
+            position <- position |> moveTo (back move)
+            distance <- distance - 1
+        //If it replies with 0, you know that location is a wall and that the droid didn't move
+        | 0L -> 
+            ()
+        | _ -> failwith "wrong output"
+    
+    
+    while not found && MyQueue.length possible_ways > 0 do
+        if debug then 
+            Console.Clear()
+            show visited
+        let way = dequeue &possible_ways
+        // https://github.com/dotnet/fsharp/issues/8069
+        // https://stackoverflow.com/questions/59552476/copyofstruct-not-defined?noredirect=1&lq=1
+        if position.X <> 0 || position.Y <> 0 || distance <> 0 then failwith "position is not initial"
+
+        for move in way do
+            status.phase <- MyQueue.enqueue status.phase move
+            status.suspended <- false
+            while not <| status.suspended || status.finished do
+                status <- runCmd status &memory
+            let output = MyQueue.dequeue &status.output
+            if output <> 1L then failwith "path changed"
+            distance <- distance + 1
+            position <- position |> moveTo move
+        
+        for move in [1L..4L] do
+            if found then () else 
+            if visited.ContainsKey(position |> moveTo move) then () else
+            status.phase <-  MyQueue.enqueue status.phase move
+            status.suspended <- false
+            while not (status.suspended || status.finished) do
+                status <- runCmd status &memory
+            let output = MyQueue.dequeue &status.output
+            visited <- visited.Add( (position |> moveTo move) , track output )
+            match output with 
+            //because of the reply of 2, you know you've found the oxygen system
+            | 2L -> 
+                distance <- distance + 1
+                found <- true
+            //a reply of 1 means the movement was successful
+            | 1L -> 
+                position <- position |> moveTo move
+                distance <- distance + 1
+                possible_ways <- enqueue possible_ways <| Array.append way [|move|]
+                status.phase <- MyQueue.enqueue status.phase <| back move
+                status.suspended <- false
+                while not (status.suspended || status.finished) do
+                    status <- runCmd status &memory
+                let output = MyQueue.dequeue &status.output
+                if output <> 1L then failwith "path changed"
+                distance <- distance - 1
+                position <- position |> moveTo (back move)
+            //If it replies with 0, you know that location is a wall and that the droid didn't move
+            | 0L -> 
+                ()
+            | _ -> failwith "wrong output"
+
+        if not found then 
+            for move in way |> Array.rev do
+                status.phase <-  MyQueue.enqueue status.phase <| back move
+                status.suspended <- false
+                while not <| status.suspended || status.finished do
+                    status <- runCmd status &memory
+                let output = MyQueue.dequeue &status.output
+                if output <> 1L then failwith "path changed"
+                distance <- distance - 1
+                position <- position |> moveTo (back move)
+    if debug then 
+        Console.Clear()
+        show visited
+    sw.Stop()
+
+    if found then 
+        show visited
+        let answer1 = distance
+        printfn "Answer Part 1 is %d" answer1
+        
+        distance <- 0
+        visited <- Map.empty
+        visited <- visited.Add (position, track 2L)
+        let oxyX, oxyY = position.X, position.Y
+        possible_ways <- MyQueue.empty
+        
+
+        for move in [1L..4L] do
+            status.phase <- MyQueue.enqueue status.phase move
+            status.suspended <- false
+            while not (status.suspended || status.finished) do
+                status <- runCmd status &memory
+            // https://stackoverflow.com/questions/59552476/copyofstruct-not-defined?noredirect=1
+            // https://github.com/dotnet/fsharp/issues/8069
+            let output = MyQueue.dequeue &status.output
+            visited <- visited.Add( (position |> moveTo move) , track output )
+            match output with 
+            | 2L 
+            | 1L -> // oxy or space are treated the same now
+                position <- position |> moveTo move
+                distance <- distance + 1
+                possible_ways <- enqueue possible_ways [|move|]
+                status.phase <- MyQueue.enqueue status.phase <| back move
+                status.suspended <- false
+                while not (status.suspended || status.finished) do
+                    status <- runCmd status &memory
+                let output = MyQueue.dequeue &status.output
+                if output < 1L then failwith "path changed" // oxy or space are treated the same now
+                position <- position |> moveTo (back move)
+                distance <- distance - 1
+            //If it replies with 0, you know that location is a wall and that the droid didn't move
+            | 0L -> 
+                ()
+            | _ -> failwith "wrong output"
+
+
+
+        while MyQueue.length possible_ways > 0 do
+            let way = dequeue &possible_ways
+            // https://github.com/dotnet/fsharp/issues/8069
+            // https://stackoverflow.com/questions/59552476/copyofstruct-not-defined?noredirect=1&lq=1
+            if position.X <> oxyX || position.Y <> oxyY || distance <> 0 then failwith "position is not initial"
+
+            for move in way do
+                status.phase <- MyQueue.enqueue status.phase move
+                status.suspended <- false
+                while not <| status.suspended || status.finished do
+                    status <- runCmd status &memory
+                let output = MyQueue.dequeue &status.output
+                if output < 1L then failwith "path changed" // oxy or space are treated the same now
+                distance <- distance + 1
+                position <- position |> moveTo move
+
+            for move in [1L..4L] do
+                if visited.ContainsKey(position |> moveTo move) then () else
+                status.phase <-  MyQueue.enqueue status.phase move
+                status.suspended <- false
+                while not (status.suspended || status.finished) do
+                    status <- runCmd status &memory
+                let output = MyQueue.dequeue &status.output
+                visited <- visited.Add( (position |> moveTo move) , track output )
+                match output with 
+                //because of the reply of 2, you know you've found the oxygen system
+                | 2L  // oxy or space are treated the same now
+                | 1L -> 
+                    position <- position |> moveTo move
+                    distance <- distance + 1
+                    possible_ways <- enqueue possible_ways <| Array.append way [|move|]
+                    status.phase <- MyQueue.enqueue status.phase <| back move
+                    status.suspended <- false
+                    while not (status.suspended || status.finished) do
+                        status <- runCmd status &memory
+                    let output = MyQueue.dequeue &status.output
+                    if output < 1L then failwith "path changed" // oxy or space are treated the same now
+                    distance <- distance - 1
+                    position <- position |> moveTo (back move)
+                //If it replies with 0, you know that location is a wall and that the droid didn't move
+                | 0L -> 
+                    ()
+                | _ -> failwith "wrong output"
+
+            if MyQueue.length possible_ways > 0 then 
+                for move in way |> Array.rev do
+                    status.phase <-  MyQueue.enqueue status.phase <| back move
+                    status.suspended <- false
+                    while not <| status.suspended || status.finished do
+                        status <- runCmd status &memory
+                    let output = MyQueue.dequeue &status.output
+                    if output < 1L then failwith "path changed" // oxy or space are treated the same now
+                    distance <- distance - 1
+                    position <- position |> moveTo (back move)
+            
+        show visited
+        printfn "Answer Part 2 is %d" distance
+
+    else printfn "Answer Part 1 not found!"
+   
     printfn "executed in %d ms"  sw.ElapsedMilliseconds
     Console.ReadKey() |> ignore
     0    
