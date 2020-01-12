@@ -154,11 +154,10 @@ type Solution = {keys: char list; tree: Tree }
 
 let otherBranches (i:int) (solution: Solution) : Tree[] =
     let branches = solution.tree.branches
-    let distance = solution.tree.distance + branches.[i].distance
     [|0..branches.Length-1|]
     |> Array.except [|i|]
     |> Array.map(fun other ->
-        {branches.[other] with distance = distance +  branches.[i].distance}
+        {branches.[other] with distance = branches.[other].distance +  branches.[i].distance}
     )
 
 type Step = | KeyStep | SpaceStep
@@ -170,12 +169,12 @@ let next (step:Step) (i:int) (solution: Solution) : Solution =
     let newbranches, back, keys =
         match step with
         | SpaceStep ->
-            otherBranches i solution, Some  branches.[i], solution.keys
+            branches.[i].branches, Some  {solution.tree with branches = otherBranches i solution}, solution.keys
         | KeyStep ->
             otherBranches i solution 
             |> Array.append branches.[i].branches, None, area :: solution.keys
             
-    {keys=keys; tree = {area = Space; distance = distance; branches = newbranches; back = back} }
+    {keys=keys; tree = {area = branches.[i].area; distance = distance; branches = newbranches; back = back} }
 
 let rec findSolution (solution: Solution) : Solution option =
     let branches = solution.tree.branches
@@ -221,6 +220,7 @@ let main _ =
     printfn "tree %A" tree
     let solution = findSolution {keys = []; tree = tree}
     printfn "solution %A" solution
+    solution |> Option.iter (fun s -> printfn "Answer 1 %d" s.tree.distance)
     printfn "executed in %d ms"  sw.ElapsedMilliseconds
     Console.ReadKey() |> ignore
     0    
