@@ -38,7 +38,6 @@ let rec tree2grid (trees:Tree[]) (grid:byref<Map<char, Grid>>) (distance:int) (n
                         distance = distance
                         needed = needed
                     } grid
-            else
             let key = branch.area |> Char.ToLower
             tree2grid branch.branches &grid distance ( key :: needed)
     
