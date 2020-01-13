@@ -3,6 +3,7 @@ open System.IO
 open Checked
 open System.Diagnostics
 //https://adventofcode.com/2019/day/18
+open MyQueue
 
 let parse (path:string) =
     [|  
@@ -203,49 +204,60 @@ let next (step:Step) (i:int) (solution: Solution) : Solution =
             
     {keys=keys; tree = {area = branches.[i].area; distance = distance; branches = newbranches; back = back} }
 
-let mutable mindistance : int option = None
 
-let rec findSolution (keynum:int) (solution: Solution) : Solution option =
+let updateMin (mindistance:byref<int option>) (alternatives:byref<Solution list>) (solution:Solution) =
     match mindistance with
-    | Some d when d < solution.tree.distance -> None 
-    | _ ->
-    let branches = solution.tree.branches
-    if  (branches = [||] ) then Some solution else
-    let alternatives : Solution [] =
-        [|
-            for i in 0..branches.Length-1 do
-                if branches.[i].area = '#' then () else
-                if branches.[i].area = Space then
-                    let solutionNext = next SpaceStep i solution
-                    match findSolution keynum solutionNext with
-                    | Some solutionFinal -> yield solutionFinal
-                    | None -> ()
-                if (Char.IsLower branches.[i].area) then
-                    let solutionNext = next KeyStep i solution
-                    if solutionNext.keys.Length = keynum
-                    then 
-                        mindistance <-
-                            Option.fold
-                                (fun _ d -> Some <| min d solutionNext.tree.distance)
-                                (Some solutionNext.tree.distance)
-                                mindistance
-                        yield solutionNext
-                    else
-                    match findSolution keynum solutionNext with
-                    | Some solutionFinal -> yield solutionFinal
-                    | None -> ()
-                if (Char.IsUpper branches.[i].area) then
-                    let needed = Char.ToLower branches.[i].area
-                    if solution.keys |> List.contains needed |> not then () else
-                    let solutionNext = next SpaceStep i solution
-                    match findSolution keynum solutionNext with
-                    | Some solutionFinal -> yield solutionFinal
-                    | None -> ()
-        |]
+    | Some d ->
+        if  solution.tree.distance < d 
+        then alternatives <- solution :: alternatives
+        mindistance <- Some <| min d solution.tree.distance
+                
+    | None ->
+        alternatives <- solution :: alternatives
+        mindistance <- Some solution.tree.distance
+
+let findSolution (keynum:int) (solution: Solution) : Solution option =
+    let mutable solution_queue : queue<Solution> = MyQueue.empty
+    solution_queue <- enqueue solution_queue solution
+    let mutable mindistance : int option = None
+    let mutable alternatives : Solution list = List.empty
+
+    while (MyQueue.length solution_queue > 0) do
+        let solution = dequeue &solution_queue
+        match mindistance with
+        | Some d when d < solution.tree.distance -> () 
+        | _ ->
+        let branches = solution.tree.branches
+        if  (branches = [||] ) then 
+            if solution.keys.Length = keynum 
+            then updateMin &mindistance &alternatives solution
+        else
+        let indexes =
+            [|0..branches.Length-1|]
+            |> Array.sortBy(fun idx -> branches.[idx].distance)
+        for i in indexes do
+            if branches.[i].area = '#' then () else
+            if branches.[i].area = Space then
+                let solutionNext = next SpaceStep i solution
+                solution_queue <- enqueue solution_queue solutionNext
+            else
+            if (Char.IsLower branches.[i].area) then
+                let solutionNext = next KeyStep i solution
+                if solutionNext.keys.Length = keynum
+                then  updateMin &mindistance &alternatives solutionNext
+                else
+                solution_queue <- enqueue solution_queue solutionNext
+            else
+            if (Char.IsUpper branches.[i].area) then
+                let needed = Char.ToLower branches.[i].area
+                if solution.keys |> List.contains needed |> not then () else
+                let solutionNext = next SpaceStep i solution
+                solution_queue <- enqueue solution_queue solutionNext
+  
     match alternatives with
-    | [||] -> None
+    | [] -> None
     | alternatives ->
-        alternatives |> Array.minBy(fun a -> a.tree.distance) |> Some
+        alternatives |> List.minBy(fun a -> a.tree.distance) |> Some
 
 [<EntryPoint>]
 let main _ =
@@ -267,6 +279,8 @@ let main _ =
     match solution with
     | None -> 
         printfn "solution not found"
+        printfn "executed in %d ms"  sw.ElapsedMilliseconds
+        Console.ReadKey() |> ignore
         -1
     | Some found -> 
         printfn "solution %s" (String.Join("-",found.keys |> List.rev))
