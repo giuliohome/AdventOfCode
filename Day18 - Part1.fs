@@ -11,7 +11,7 @@ let parse (path:string) =
             yield sr.ReadLine().ToCharArray()
     |]
 
-type Tree = {area:char; distance: int; branches: Tree[]; back: Tree option}
+type Tree = {area:char; distance: int; branches: Tree[]; back: Tree[] option}
 [<Literal>]
 let Space = '.'
 [<Literal>]
@@ -159,7 +159,13 @@ let otherBranches (i:int) (solution: Solution) : Tree[] =
     |> Array.map(fun other ->
         {branches.[other] with distance = branches.[other].distance +  branches.[i].distance}
     )
-
+    |> Array.append
+        (Option.fold 
+            (fun _ backtrees -> 
+                backtrees
+                |> Array.map(fun backtree -> {backtree with distance = backtree.distance + branches.[i].distance})
+            ) 
+            [||] solution.tree.back)
 type Step = | KeyStep | SpaceStep
 
 let next (step:Step) (i:int) (solution: Solution) : Solution =
@@ -169,9 +175,11 @@ let next (step:Step) (i:int) (solution: Solution) : Solution =
     let newbranches, back, keys =
         match step with
         | SpaceStep ->
-            branches.[i].branches, Some  {solution.tree with branches = otherBranches i solution}, solution.keys
+            branches.[i].branches, Some  (otherBranches i solution), solution.keys
         | KeyStep ->
             otherBranches i solution 
+            |> Array.append
+                (Option.fold (fun _ t -> t) [||] branches.[i].back)
             |> Array.append branches.[i].branches, None, area :: solution.keys
             
     {keys=keys; tree = {area = branches.[i].area; distance = distance; branches = newbranches; back = back} }
@@ -184,21 +192,21 @@ let rec findSolution (solution: Solution) : Solution option =
             for i in 0..branches.Length-1 do
                 if branches.[i].area = '#' then () else
                 if branches.[i].area = Space then
-                    let solution = next SpaceStep i solution
-                    match findSolution solution with
-                    | Some solution -> yield solution
+                    let solutionNext = next SpaceStep i solution
+                    match findSolution solutionNext with
+                    | Some solutionFinal -> yield solutionFinal
                     | None -> ()
                 if (Char.IsLower branches.[i].area) then
-                    let solution = next KeyStep i solution
-                    match findSolution solution with
-                    | Some solution -> yield solution
+                    let solutionNext = next KeyStep i solution
+                    match findSolution solutionNext with
+                    | Some solutionFinal -> yield solutionFinal
                     | None -> ()
                 if (Char.IsUpper branches.[i].area) then
                     let needed = Char.ToLower branches.[i].area
                     if solution.keys |> List.contains needed |> not then () else
-                    let solution = next SpaceStep i solution
-                    match findSolution solution with
-                    | Some solution -> yield solution
+                    let solutionNext = next SpaceStep i solution
+                    match findSolution solutionNext with
+                    | Some solutionFinal -> yield solutionFinal
                     | None -> ()
         |]
     match alternatives with
@@ -212,12 +220,15 @@ let main _ =
     let sw = Stopwatch()
     sw.Start()
 
-    let map = parse @"C:\dev\FSharp\AoC2019\Day18\input_demo.txt"
-    printfn "%A" map
+    let map = parse @"C:\dev\FSharp\AdventOfCode\Day18\input_demo.txt"
+    map
+    |> Array.iter(fun l ->
+        printfn "%s" (System.String(l))
+    )
     let start = findStart map
     map.[snd start].[fst start] <- Space
     let tree = buildTree map [start] {area=Space; distance=0; position = start};
-    printfn "tree %A" tree
+    //printfn "tree %A" tree
     let solution = findSolution {keys = []; tree = tree}
     printfn "solution %A" solution
     solution |> Option.iter (fun s -> printfn "Answer 1 %d" s.tree.distance)
