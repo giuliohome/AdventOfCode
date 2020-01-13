@@ -21,8 +21,29 @@ let Entrance = '@'
 
 type Tree = {area:char; distance: int; branches: Tree[]; back: Tree option}
 
+type Grid = {distance: int; needed: char list}
+
 let isKey (c:char) : bool =
      c >= 'a' && c <= 'z'
+
+let rec tree2grid (trees:Tree[]) (grid:byref<Map<char, Grid>>) (distance:int) (needed: char list) =
+    match trees with
+    | [||] -> ()
+    | branches ->
+        for branch in branches do
+            let distance = branch.distance + distance
+            if isKey branch.area then 
+                grid <- Map.add branch.area 
+                    {
+                        distance = distance
+                        needed = needed
+                    } grid
+            else
+            let key = branch.area |> Char.ToLower
+            tree2grid branch.branches &grid distance ( key :: needed)
+    
+
+
 
 let countKeys (map: char [] []) =
     map
@@ -307,7 +328,7 @@ let main _ =
     let sw = Stopwatch()
     sw.Start()
 
-    let map = parse @"C:\dev\FSharp\AdventOfCode\Day18\input_demo.txt"
+    let map = parse @"C:\dev\FSharp\AoC2019\Day18\input_demo.txt"
     map
     |> Array.iter(fun l ->
         printfn "%s" (System.String(l))
@@ -317,6 +338,9 @@ let main _ =
     map.[snd start].[fst start] <- Space
     let tree = buildTree map [start] {area=Space; distance=0; position = start};
     //printfn "tree %A" tree
+    let mutable grid = Map.empty
+    tree2grid tree.branches &grid 0 List.empty
+    printfn "grid %A" grid
     let solution = findSolution keynum {keys = []; tree = tree}
     match solution with
     | None -> 
