@@ -11,13 +11,20 @@ let parse (path:string) =
             yield sr.ReadLine().ToCharArray()
     |]
 
-type Tree = {area:char; distance: int; branches: Tree[]; back: Tree[] option}
+type Tree = {area:char; distance: int; branches: Tree[]; back: Tree option}
 [<Literal>]
 let Space = '.'
 [<Literal>]
 let Wall = '#'
 [<Literal>]
 let Entrance = '@'
+
+let countKeys (map: char [] []) =
+    map
+    |> Array.sumBy(fun line ->
+        line |> Array.filter(fun c -> c >= 'a' && c <= 'z') |> Array.length
+    )
+
 
 let findStart (map: char [] []) =
     let i2 =
@@ -152,20 +159,22 @@ let rec buildTree (map: char [] []) (visited: (int * int) list) (branch: Branch)
 
 type Solution = {keys: char list; tree: Tree }
 
-let otherBranches (i:int) (solution: Solution) : Tree[] =
+let otherBranches (i:int) (solution: Solution) : Tree =
     let branches = solution.tree.branches
-    [|0..branches.Length-1|]
-    |> Array.except [|i|]
-    |> Array.map(fun other ->
-        {branches.[other] with distance = branches.[other].distance +  branches.[i].distance}
-    )
-    |> Array.append
-        (Option.fold 
-            (fun _ backtrees -> 
-                backtrees
-                |> Array.map(fun backtree -> {backtree with distance = backtree.distance + branches.[i].distance})
-            ) 
-            [||] solution.tree.back)
+    let others = 
+        [|0..branches.Length-1|]
+        |> Array.except [|i|]
+        |> Array.map(fun other ->
+            branches.[other] //{branches.[other] with distance = branches.[other].distance +  branches.[i].distance}
+        )
+        |> Array.append
+            (Option.fold 
+                (fun _ backtree -> 
+                    [| backtree |] // {backtree with distance = backtree.distance + branches.[i].distance}|]
+                ) 
+                [||] solution.tree.back)
+    {area = Space; back = None; branches = others; distance = branches.[i].distance}
+
 type Step = | KeyStep | SpaceStep
 
 let next (step:Step) (i:int) (solution: Solution) : Solution =
@@ -175,16 +184,31 @@ let next (step:Step) (i:int) (solution: Solution) : Solution =
     let newbranches, back, keys =
         match step with
         | SpaceStep ->
-            branches.[i].branches, Some  (otherBranches i solution), solution.keys
+            let others = otherBranches i solution
+            let spaceback =
+                match others.branches with
+                | [||] -> None
+                | _ -> Some others
+            branches.[i].branches, spaceback, solution.keys
         | KeyStep ->
-            otherBranches i solution 
+            let others = otherBranches i solution
+            let keybranches =
+                match others.branches with
+                | [||] -> [||]
+                | _ -> [|others|]
+            keybranches
             |> Array.append
-                (Option.fold (fun _ t -> t) [||] branches.[i].back)
+                (Option.fold (fun _ t -> [|t|]) [||] branches.[i].back)
             |> Array.append branches.[i].branches, None, area :: solution.keys
             
     {keys=keys; tree = {area = branches.[i].area; distance = distance; branches = newbranches; back = back} }
 
-let rec findSolution (solution: Solution) : Solution option =
+let mutable mindistance : int option = None
+
+let rec findSolution (keynum:int) (solution: Solution) : Solution option =
+    match mindistance with
+    | Some d when d < solution.tree.distance -> None 
+    | _ ->
     let branches = solution.tree.branches
     if  (branches = [||] ) then Some solution else
     let alternatives : Solution [] =
@@ -193,19 +217,28 @@ let rec findSolution (solution: Solution) : Solution option =
                 if branches.[i].area = '#' then () else
                 if branches.[i].area = Space then
                     let solutionNext = next SpaceStep i solution
-                    match findSolution solutionNext with
+                    match findSolution keynum solutionNext with
                     | Some solutionFinal -> yield solutionFinal
                     | None -> ()
                 if (Char.IsLower branches.[i].area) then
                     let solutionNext = next KeyStep i solution
-                    match findSolution solutionNext with
+                    if solutionNext.keys.Length = keynum
+                    then 
+                        mindistance <-
+                            Option.fold
+                                (fun _ d -> Some <| min d solutionNext.tree.distance)
+                                (Some solutionNext.tree.distance)
+                                mindistance
+                        yield solutionNext
+                    else
+                    match findSolution keynum solutionNext with
                     | Some solutionFinal -> yield solutionFinal
                     | None -> ()
                 if (Char.IsUpper branches.[i].area) then
                     let needed = Char.ToLower branches.[i].area
                     if solution.keys |> List.contains needed |> not then () else
                     let solutionNext = next SpaceStep i solution
-                    match findSolution solutionNext with
+                    match findSolution keynum solutionNext with
                     | Some solutionFinal -> yield solutionFinal
                     | None -> ()
         |]
@@ -226,12 +259,18 @@ let main _ =
         printfn "%s" (System.String(l))
     )
     let start = findStart map
+    let keynum = countKeys map
     map.[snd start].[fst start] <- Space
     let tree = buildTree map [start] {area=Space; distance=0; position = start};
     //printfn "tree %A" tree
-    let solution = findSolution {keys = []; tree = tree}
-    printfn "solution %A" solution
-    solution |> Option.iter (fun s -> printfn "Answer 1 %d" s.tree.distance)
-    printfn "executed in %d ms"  sw.ElapsedMilliseconds
-    Console.ReadKey() |> ignore
-    0    
+    let solution = findSolution keynum {keys = []; tree = tree}
+    match solution with
+    | None -> 
+        printfn "solution not found"
+        -1
+    | Some found -> 
+        printfn "solution %s" (String.Join("-",found.keys |> List.rev))
+        solution |> Option.iter (fun s -> printfn "Answer 1 %d" s.tree.distance)
+        printfn "executed in %d ms"  sw.ElapsedMilliseconds
+        Console.ReadKey() |> ignore
+        0    
