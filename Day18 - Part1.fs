@@ -12,13 +12,17 @@ let parse (path:string) =
             yield sr.ReadLine().ToCharArray()
     |]
 
-type Tree = {area:char; distance: int; branches: Tree[]; back: Tree option}
 [<Literal>]
 let Space = '.'
 [<Literal>]
 let Wall = '#'
 [<Literal>]
 let Entrance = '@'
+
+type Tree = {area:char; distance: int; branches: Tree[]; back: Tree option}
+
+let isKey (c:char) : bool =
+     c >= 'a' && c <= 'z'
 
 let countKeys (map: char [] []) =
     map
@@ -160,6 +164,39 @@ let rec buildTree (map: char [] []) (visited: (int * int) list) (branch: Branch)
 
 type Solution = {keys: char list; tree: Tree }
 
+let rec pruneSpace (branches: Tree[]): Tree[] =
+    [|
+        for branch in branches do
+            if branch.area <> Space then
+                yield branch
+            else if branch.branches.Length = 1 then
+                yield {branch.branches.[0] with distance = branch.branches.[0].distance + branch.distance}
+            else 
+                yield branch
+    |] 
+
+let rec prune (keys: char list) (branches: Tree[]) : Tree[] =
+    let opened =
+        keys |> List.map (fun k -> Char.ToUpper k)
+    let pruned =
+        [|    
+            for branch in branches do
+                if opened |> List.contains branch.area // && branch.branches.Length = 1 
+                then
+                    let newback =
+                        Option.map 
+                            (fun (b : Tree) -> {b with distance = b.distance + branch.distance})
+                            branch.branches.[0].back
+                    let partial =
+                        (branch.branches)
+                        |> Array.map(fun b ->
+                            {b with distance = branch.branches.[0].distance + branch.distance; back = newback})
+                    yield! prune keys partial
+                else 
+                    yield branch
+            |]
+    pruneSpace pruned
+
 let otherBranches (i:int) (solution: Solution) : Tree =
     let branches = solution.tree.branches
     let others = 
@@ -174,6 +211,8 @@ let otherBranches (i:int) (solution: Solution) : Tree =
                     [| backtree |] // {backtree with distance = backtree.distance + branches.[i].distance}|]
                 ) 
                 [||] solution.tree.back)
+    if others.Length = 1 then {others.[0] with distance = others.[0].distance + branches.[i].distance} 
+    else
     {area = Space; back = None; branches = others; distance = branches.[i].distance}
 
 type Step = | KeyStep | SpaceStep
@@ -211,10 +250,12 @@ let updateMin (mindistance:byref<int option>) (alternatives:byref<Solution list>
         if  solution.tree.distance < d 
         then alternatives <- solution :: alternatives
         mindistance <- Some <| min d solution.tree.distance
+        printfn "distance at %d" mindistance.Value
                 
     | None ->
         alternatives <- solution :: alternatives
         mindistance <- Some solution.tree.distance
+        printfn "distance at %d" mindistance.Value
 
 let findSolution (keynum:int) (solution: Solution) : Solution option =
     let mutable solution_queue : queue<Solution> = MyQueue.empty
@@ -224,17 +265,18 @@ let findSolution (keynum:int) (solution: Solution) : Solution option =
 
     while (MyQueue.length solution_queue > 0) do
         let solution = dequeue &solution_queue
-        match mindistance with
-        | Some d when d < solution.tree.distance -> () 
-        | _ ->
-        let branches = solution.tree.branches
+        let branches = prune solution.keys solution.tree.branches
+        let solution = {solution with tree = {solution.tree with branches = branches}}
         if  (branches = [||] ) then 
             if solution.keys.Length = keynum 
             then updateMin &mindistance &alternatives solution
         else
+        match mindistance with
+        | Some d when d < solution.tree.distance + (solution.tree.branches |> Array.map (fun t -> t.distance) |> Array.min) -> () 
+        | _ ->
         let indexes =
             [|0..branches.Length-1|]
-            |> Array.sortBy(fun idx -> branches.[idx].distance)
+            |> Array.sortBy(fun idx -> ((if isKey branches.[idx].area then 0 else 1) , branches.[idx].distance))
         for i in indexes do
             if branches.[i].area = '#' then () else
             if branches.[i].area = Space then
