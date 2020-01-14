@@ -45,13 +45,13 @@ let rec tree2grid (trees:Tree[]) (grid:byref<Map<char, Grid>>) (distance:int) (n
                     ( key :: needed)
                 else needed)
 
-let grid2branches (having_keys: char[]) (grid:Map<char, Grid>) : Tree[] =
+let grid2branches (having_keys: char list) (grid:Map<char, Grid>) : Tree[] =
     grid
-    |> Map.filter(fun k g -> g.needed |> List.forall (fun c -> having_keys |> Array.contains c))
+    |> Map.filter(fun k g -> g.needed |> List.forall (fun c -> having_keys |> List.contains c))
     |> Map.toArray
     |> Array.map(fun (k,g) -> {area=k; distance = g.distance; back = None; branches = [||]})
 
-let grid2tree (here:char) (distance:int) (having_keys: char[]) (grid:Map<char, Grid>) : Tree =
+let grid2tree (here:char) (distance:int) (having_keys: char list) (grid:Map<char, Grid>) : Tree =
     match here with
     | Entrance -> 
         let branches = grid2branches having_keys grid
@@ -252,31 +252,18 @@ let otherBranches (i:int) (solution: Solution) : Tree =
 
 type Step = | KeyStep | SpaceStep
 
-let next (step:Step) (i:int) (solution: Solution) : Solution =
+let next (step:Step) (i:int) (solution: Solution) grid : Solution =
     let branches = solution.tree.branches
     let distance = solution.tree.distance + branches.[i].distance
     let area = branches.[i].area  
-    let newbranches, back, keys =
-        match step with
-        | SpaceStep ->
-            let others = otherBranches i solution
-            let spaceback =
-                match others.branches with
-                | [||] -> None
-                | _ -> Some others
-            branches.[i].branches, spaceback, solution.keys
-        | KeyStep ->
-            let others = otherBranches i solution
-            let keybranches =
-                match others.branches with
-                | [||] -> [||]
-                | _ -> [|others|]
-            keybranches
-            |> Array.append
-                (Option.fold (fun _ t -> [|t|]) [||] branches.[i].back)
-            |> Array.append branches.[i].branches, None, area :: solution.keys
-            
-    {keys=keys; tree = {area = branches.[i].area; distance = distance; branches = newbranches; back = back} }
+    //let newbranches, back, keys =
+    match step with
+    | SpaceStep ->
+        failwith "not expected with smart grid"
+    | KeyStep ->
+        let keys = area :: solution.keys
+        let tree = grid2tree area distance keys grid
+        {keys=keys; tree=tree}
 
 
 let updateMin (mindistance:byref<int option>) (alternatives:byref<Solution list>) (solution:Solution) =
@@ -292,7 +279,7 @@ let updateMin (mindistance:byref<int option>) (alternatives:byref<Solution list>
         mindistance <- Some solution.tree.distance
         printfn "distance at %d" mindistance.Value
 
-let findSolution (keynum:int) (solution: Solution) : Solution option =
+let findSolution (keynum:int) (solution: Solution) grid : Solution option =
     let mutable solution_queue : queue<Solution> = MyQueue.empty
     solution_queue <- enqueue solution_queue solution
     let mutable mindistance : int option = None
@@ -313,22 +300,27 @@ let findSolution (keynum:int) (solution: Solution) : Solution option =
             [|0..branches.Length-1|]
             |> Array.sortBy(fun idx -> ((if isKey branches.[idx].area then 0 else 1) , branches.[idx].distance))
         for i in indexes do
-            if branches.[i].area = '#' then () else
+            if branches.[i].area = '#' then 
+                //failwith "not expected with smart grid"
+                () 
+            else
             if branches.[i].area = Space then
-                let solutionNext = next SpaceStep i solution
-                solution_queue <- enqueue solution_queue solutionNext
+                //failwith "not expected with smart grid"
+                let solutionNext = next SpaceStep i solution grid
+                solution_queue <- enqueue solution_queue solutionNext 
             else
             if (Char.IsLower branches.[i].area) then
-                let solutionNext = next KeyStep i solution
+                let solutionNext = next KeyStep i solution grid
                 if solutionNext.keys.Length = keynum
                 then  updateMin &mindistance &alternatives solutionNext
                 else
                 solution_queue <- enqueue solution_queue solutionNext
             else
             if (Char.IsUpper branches.[i].area) then
+                //failwith "not expected with smart grid"
                 let needed = Char.ToLower branches.[i].area
                 if solution.keys |> List.contains needed |> not then () else
-                let solutionNext = next SpaceStep i solution
+                let solutionNext = next SpaceStep i solution grid
                 solution_queue <- enqueue solution_queue solutionNext
   
     match alternatives with
@@ -356,9 +348,9 @@ let main _ =
     tree2grid tree.branches &grid 0 List.empty
     printfn "smart grid"
     //grid |> Map.iter (fun k t -> printfn "%O %A" k t)
-    let solution = findSolution keynum {keys = []; tree = tree}
-    let simpletree = grid2tree Entrance 0 [||] grid
+    let simpletree = grid2tree Entrance 0 [] grid
     printfn "test grid2tree %A" simpletree
+    let solution = findSolution keynum {keys = []; tree = simpletree} grid
     match solution with
     | None -> 
         printfn "solution not found"
