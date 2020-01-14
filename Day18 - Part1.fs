@@ -37,11 +37,13 @@ let rec tree2grid (trees:Tree[]) (grid:byref<Map<char, Grid>>) (distance:int) (n
             let isKey = isKey branch.area
             let isDoor = isDoor branch.area
             if isKey then 
-                grid <- Map.add branch.area 
-                    {
-                        distance = distance
-                        needed = needed
-                    } grid
+                if grid |> Map.containsKey branch.area |> not 
+                   || grid.[branch.area].distance > distance then
+                    grid <- Map.add branch.area 
+                        {
+                            distance = distance
+                            needed = needed
+                        } grid
             tree2grid branch.branches &grid distance 
                 (if isDoor || isKey then 
                     let key = branch.area |> Char.ToLower
@@ -314,7 +316,7 @@ let findSolution (keynum:int) (solution: Solution) (fullGrid: Map<char,Map<char,
             then updateMin &mindistance &alternatives solution
         else
         match mindistance with
-        | Some d when d < solution.tree.distance + (solution.tree.branches |> Array.map (fun t -> t.distance) |> Array.min) -> () 
+        | Some d when d < solution.tree.distance + (solution.tree.branches |> Array.map (fun t -> t.distance) |> Array.min)  -> () //
         | _ ->
         let indexes =
             [|0..branches.Length-1|]
@@ -329,7 +331,10 @@ let findSolution (keynum:int) (solution: Solution) (fullGrid: Map<char,Map<char,
             if (Char.IsLower branches.[i].area) then
                 let solutionNext = next KeyStep i solution fullGrid
                 if solutionNext.keys.Length = keynum
-                then  updateMin &mindistance &alternatives solutionNext
+                then
+                    let previous = if visited.ContainsKey(solutionNext.tree.area) then visited.[solutionNext.tree.area] else []
+                    visited <- Map.add solutionNext.tree.area ((solutionNext.keys, solutionNext.tree.distance) :: previous)  visited
+                    updateMin &mindistance &alternatives solutionNext
                 else
                 if visited.ContainsKey(solutionNext.tree.area) 
                     && (visited.[solutionNext.tree.area] 
