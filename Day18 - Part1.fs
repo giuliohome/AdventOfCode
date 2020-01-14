@@ -45,6 +45,20 @@ let rec tree2grid (trees:Tree[]) (grid:byref<Map<char, Grid>>) (distance:int) (n
                     ( key :: needed)
                 else needed)
 
+let grid2branches (having_keys: char[]) (grid:Map<char, Grid>) : Tree[] =
+    grid
+    |> Map.filter(fun k g -> g.needed |> List.forall (fun c -> having_keys |> Array.contains c))
+    |> Map.toArray
+    |> Array.map(fun (k,g) -> {area=k; distance = g.distance; back = None; branches = [||]})
+
+let grid2tree (here:char) (distance:int) (having_keys: char[]) (grid:Map<char, Grid>) : Tree =
+    match here with
+    | Entrance -> 
+        let branches = grid2branches having_keys grid
+        {area = here; distance=distance; branches=branches; back = None} 
+    | key when isKey key -> failwith "TODO - wip"
+    | _ -> failwith "only keys or entrance"
+
 let countKeys (map: char [] []) =
     map
     |> Array.sumBy(fun line ->
@@ -183,7 +197,7 @@ let rec buildTree (map: char [] []) (visited: (int * int) list) (branch: Branch)
         |] ; back = None
         }
 
-type Solution = {keys: char list; tree: Tree }
+type Solution = {keys: char list; tree: Tree}
 
 let rec pruneSpace (branches: Tree[]): Tree[] =
     [|
@@ -341,8 +355,10 @@ let main _ =
     let mutable grid = Map.empty
     tree2grid tree.branches &grid 0 List.empty
     printfn "smart grid"
-    grid |> Map.iter (fun k t -> printfn "%O %A" k t)
+    //grid |> Map.iter (fun k t -> printfn "%O %A" k t)
     let solution = findSolution keynum {keys = []; tree = tree}
+    let simpletree = grid2tree Entrance 0 [||] grid
+    printfn "test grid2tree %A" simpletree
     match solution with
     | None -> 
         printfn "solution not found"
