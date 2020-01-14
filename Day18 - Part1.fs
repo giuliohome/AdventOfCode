@@ -43,7 +43,7 @@ let rec tree2grid (trees:Tree[]) (grid:byref<Map<char, Grid>>) (distance:int) (n
                         needed = needed
                     } grid
             tree2grid branch.branches &grid distance 
-                (if isDoor then 
+                (if isDoor || isKey then 
                     let key = branch.area |> Char.ToLower
                     ( key :: needed)
                 else needed)
@@ -289,6 +289,8 @@ let updateMin (mindistance:byref<int option>) (alternatives:byref<Solution list>
         mindistance <- Some solution.tree.distance
         printfn "distance at %d" mindistance.Value
 
+let mutable visited = Map.empty<char,((char list) * int) list>
+
 let findSolution (keynum:int) (solution: Solution) (fullGrid: Map<char,Map<char,Grid>>) : Solution option =
     let mutable solution_queue : queue<Solution> = MyQueue.empty
     solution_queue <- enqueue solution_queue solution
@@ -297,6 +299,14 @@ let findSolution (keynum:int) (solution: Solution) (fullGrid: Map<char,Map<char,
 
     while (MyQueue.length solution_queue > 0) do
         let solution = dequeue &solution_queue
+        if visited.ContainsKey(solution.tree.area) 
+            && (visited.[solution.tree.area] 
+                |> List.exists (
+                    fun (keys, distance) -> 
+                    distance < solution.tree.distance
+                    && solution.keys |> List.forall(fun k -> keys |> List.contains k)
+                ))
+        then () else
         let solution = {solution with tree = grid2tree solution.tree.area solution.tree.distance solution.keys fullGrid.[solution.tree.area]}
         let branches = solution.tree.branches
         if  (branches = [||] ) then 
@@ -311,27 +321,31 @@ let findSolution (keynum:int) (solution: Solution) (fullGrid: Map<char,Map<char,
             |> Array.sortBy(fun idx -> ((if isKey branches.[idx].area then 0 else 1) , branches.[idx].distance))
         for i in indexes do
             if branches.[i].area = '#' then 
-                //failwith "not expected with smart grid"
-                () 
+                failwith "not expected with smart grid" 
             else
             if branches.[i].area = Space then
-                //failwith "not expected with smart grid"
-                let solutionNext = next SpaceStep i solution fullGrid
-                solution_queue <- enqueue solution_queue solutionNext 
+                failwith "not expected with smart grid"
             else
             if (Char.IsLower branches.[i].area) then
                 let solutionNext = next KeyStep i solution fullGrid
                 if solutionNext.keys.Length = keynum
                 then  updateMin &mindistance &alternatives solutionNext
                 else
-                solution_queue <- enqueue solution_queue solutionNext
+                if visited.ContainsKey(solutionNext.tree.area) 
+                    && (visited.[solutionNext.tree.area] 
+                        |> List.exists (
+                            fun (keys, distance) -> 
+                            distance <= solutionNext.tree.distance
+                            && solutionNext.keys |> List.forall(fun k -> keys |> List.contains k)
+                        ))
+                then () 
+                else 
+                    solution_queue <- enqueue solution_queue solutionNext
+                    let previous = if visited.ContainsKey(solutionNext.tree.area) then visited.[solutionNext.tree.area] else []
+                    visited <- Map.add solutionNext.tree.area ((solutionNext.keys, solutionNext.tree.distance) :: previous)  visited
             else
             if (Char.IsUpper branches.[i].area) then
-                //failwith "not expected with smart grid"
-                let needed = Char.ToLower branches.[i].area
-                if solution.keys |> List.contains needed |> not then () else
-                let solutionNext = next SpaceStep i solution fullGrid
-                solution_queue <- enqueue solution_queue solutionNext
+                failwith "not expected with smart grid"
   
     match alternatives with
     | [] -> None
@@ -344,7 +358,7 @@ let main _ =
     let sw = Stopwatch()
     sw.Start()
 
-    let map = parse @"C:\dev\FSharp\AdventOfCode\Day18\input_demo.txt"
+    let map = parse @"C:\dev\FSharp\AdventOfCode\Day18\input.txt"
     map
     |> Array.iter(fun l ->
         printfn "%s" (System.String(l))
@@ -371,7 +385,7 @@ let main _ =
         |> Map.ofArray
     //printfn "Full grid ready!\n%A" fullGrid
     let simpletree = grid2tree Entrance 0 [] grid
-    printfn "test grid2tree %A" simpletree
+    //printfn "test grid2tree %A" simpletree
     let solution = findSolution keynum {keys = []; tree = simpletree} fullGrid
     match solution with
     | None -> 
