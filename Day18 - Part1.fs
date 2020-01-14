@@ -32,17 +32,18 @@ let rec tree2grid (trees:Tree[]) (grid:byref<Map<char, Grid>>) (distance:int) (n
     | branches ->
         for branch in branches do
             let distance = branch.distance + distance
-            if isKey branch.area then 
+            let isKey = isKey branch.area
+            if isKey then 
                 grid <- Map.add branch.area 
                     {
                         distance = distance
                         needed = needed
                     } grid
-            let key = branch.area |> Char.ToLower
-            tree2grid branch.branches &grid distance ( key :: needed)
-    
-
-
+            tree2grid branch.branches &grid distance 
+                (if isKey then 
+                    let key = branch.area |> Char.ToLower
+                    ( key :: needed)
+                else needed)
 
 let countKeys (map: char [] []) =
     map
@@ -327,7 +328,7 @@ let main _ =
     let sw = Stopwatch()
     sw.Start()
 
-    let map = parse @"C:\dev\FSharp\AoC2019\Day18\input_demo.txt"
+    let map = parse @"C:\dev\FSharp\AdventOfCode\Day18\input_demo.txt"
     map
     |> Array.iter(fun l ->
         printfn "%s" (System.String(l))
@@ -339,7 +340,8 @@ let main _ =
     //printfn "tree %A" tree
     let mutable grid = Map.empty
     tree2grid tree.branches &grid 0 List.empty
-    printfn "grid %A" grid
+    printfn "smart grid"
+    grid |> Map.iter (fun k t -> printfn "%O %A" k t)
     let solution = findSolution keynum {keys = []; tree = tree}
     match solution with
     | None -> 
