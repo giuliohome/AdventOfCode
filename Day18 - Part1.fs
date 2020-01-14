@@ -64,16 +64,22 @@ let countKeys (map: char [] []) =
     |> Array.sumBy(fun line ->
         line |> Array.filter(fun c -> c >= 'a' && c <= 'z') |> Array.length
     )
+let getKeys (map: char [] []) =
+    map
+    |> Array.collect(fun line ->
+        line |> Array.filter(fun c -> c >= 'a' && c <= 'z') )
 
 
-let findStart (map: char [] []) =
+let findChar c (map: char [] []) =
     let i2 =
         map
-        |> Array.findIndex(Array.contains Entrance)
+        |> Array.findIndex(Array.contains c)
     let i1 = 
         map.[i2] 
-        |> Array.findIndex ((=) Entrance)
+        |> Array.findIndex ((=) c)
     (i1,i2)
+let findStart =
+    findChar Entrance
 
 let getRect<'a> (map: 'a [][]) =
     (map.[0].Length - 1, map.Length - 1)
@@ -342,12 +348,23 @@ let main _ =
     let start = findStart map
     let keynum = countKeys map
     map.[snd start].[fst start] <- Space
-    let tree = buildTree map [start] {area=Space; distance=0; position = start};
+    let tree = buildTree map [start] {area=Space; distance=0; position = start}
     //printfn "tree %A" tree
     let mutable grid = Map.empty
     tree2grid tree.branches &grid 0 List.empty
-    printfn "smart grid"
+    //printfn "smart grid"
     //grid |> Map.iter (fun k t -> printfn "%O %A" k t)
+    let fullGrid =
+        getKeys map
+        |> Array.map(fun k ->
+            let kpos = map |> findChar k
+            let ktree = buildTree map [kpos] {area=k; distance=0; position = kpos}
+            let mutable kgrid = Map.empty
+            tree2grid ktree.branches &kgrid 0 List.empty
+            (k,kgrid)
+        )
+        |> Map.ofArray
+    //printfn "Full grid ready!\n%A" fullGrid
     let simpletree = grid2tree Entrance 0 [] grid
     printfn "test grid2tree %A" simpletree
     let solution = findSolution keynum {keys = []; tree = simpletree} grid
