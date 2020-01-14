@@ -346,12 +346,9 @@ let main _ =
     match solution with
     | None -> 
         printfn "solution not found"
-        printfn "executed in %d ms"  sw.ElapsedMilliseconds
-        Console.ReadKey() |> ignore
-        -1
     | Some found -> 
         printfn "solution %s" (String.Join("-",found.keys |> List.rev))
         solution |> Option.iter (fun s -> printfn "Answer 1 %d" s.tree.distance)
-        printfn "executed in %d ms"  sw.ElapsedMilliseconds
-        Console.ReadKey() |> ignore
-        0    
+    printfn "executed in %d ms"  sw.ElapsedMilliseconds
+    Console.ReadKey() |> ignore
+    0
