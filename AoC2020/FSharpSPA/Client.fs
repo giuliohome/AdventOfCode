@@ -28,12 +28,21 @@ module Client =
             h1 [] [text "Let's start with Advent of Code"]
             p [] [text "Quick test"]
             Doc.Button "Grab input day 1 part 1 2019" [] (fun () ->
-                let req = JQuery.GetJSON("https://adventofcode.com/2019/day/1/input", fun (data, _) ->
+                let settings = AjaxSettings()
+                settings.BeforeSend <-
+                        fun (req : JqXHR) (_: AjaxSettings) -> 
+                            req.SetRequestHeader("crossDomain","1")
+                            req.SetRequestHeader("dataType","jsonp") 
+                settings.CrossDomain <- true
+                settings.Success <- fun data  _  _ ->
                         let data = As<string> data
                         JQuery.Of("#inputText").Val(data).Ignore
-                   )
-                req.SetRequestHeader("crossDomain","1")
-                req.SetRequestHeader("dataType","jsonp")
+
+                JQuery.Ajax("https://adventofcode.com/2019/day/1/input",settings )
+                    .Done(
+                        fun () -> Console.Log("Done")
+                    ) 
+                    |> ignore
             )
             textarea [attr.id "inputText";] []
         ]

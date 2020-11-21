@@ -366,7 +366,7 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
 (function()
 {
  "use strict";
- var Global,FSharpSPA,Client,WebSharper,Operators,Obj,UI,Templating,Runtime,Server,TemplateInstance,Arrays,ProviderBuilder,Unchecked,FSharpSPA_Templates,Var$1,ListModel,Handler,Var,SC$1,System,Guid,Collections,List,Client$1,Templates,Doc,JavaScript,Pervasives,ConcreteVar,Snap,Dictionary,HtmlModule,attr,HashSet,Seq,TemplateInitializer,EventTarget,Node,JS,Abbrev,Fresh,View,Object,AttrProxy,CheckedInput,Numeric,DictionaryUtil,Enumerator,T,SC$2,WindowOrWorkerGlobalScope,Docs,DocElemNode,CharacterData,Storage,DomUtility,Attrs,Elt,Prepare,Slice,KeyCollection,An,Settings,Mailbox,SC$3,Attrs$1,Dyn,ArrayStorage,Array,AttrModule,List$1,T$1,Strings,Updates,ValueCollection,Docs$1,RunState,NodeSet,Concurrency,Anims,SC$4,HashSetUtil,BindVar,SC$5,SC$6,AppendList,SC$7,DynamicAttrNode,Scheduler,Easing,AsyncBody,SC$8,CT,HashSet$1,String,CancellationTokenSource,DomNodes,Char,Error,OperationCanceledException,Lazy,SC$9,Queue,LazyExtensionsProxy,LazyRecord,IntelliFactory,Runtime$1,$,Math,console,Date;
+ var Global,FSharpSPA,Client,WebSharper,Operators,Obj,UI,Templating,Runtime,Server,TemplateInstance,Arrays,ProviderBuilder,Unchecked,FSharpSPA_Templates,Var$1,ListModel,Handler,Var,SC$1,System,Guid,Collections,List,Client$1,Templates,Doc,JavaScript,Pervasives,ConcreteVar,Snap,Dictionary,HtmlModule,attr,HashSet,Seq,TemplateInitializer,EventTarget,Node,JS,Abbrev,Fresh,View,Object,AttrProxy,CheckedInput,Numeric,DictionaryUtil,Enumerator,T,SC$2,WindowOrWorkerGlobalScope,Docs,DocElemNode,CharacterData,Storage,DomUtility,Attrs,Elt,Prepare,Slice,KeyCollection,An,Settings,Mailbox,SC$3,Attrs$1,Dyn,ArrayStorage,Array,AttrModule,List$1,T$1,Strings,Updates,ValueCollection,Docs$1,RunState,NodeSet,Concurrency,Anims,SC$4,HashSetUtil,BindVar,SC$5,SC$6,AppendList,SC$7,DynamicAttrNode,Scheduler,Easing,AsyncBody,SC$8,CT,HashSet$1,String,CancellationTokenSource,DomNodes,Char,Error,OperationCanceledException,Lazy,SC$9,Queue,LazyExtensionsProxy,LazyRecord,IntelliFactory,Runtime$1,$,console,Math,Date;
  Global=self;
  FSharpSPA=Global.FSharpSPA=Global.FSharpSPA||{};
  Client=FSharpSPA.Client=FSharpSPA.Client||{};
@@ -476,8 +476,8 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
  IntelliFactory=Global.IntelliFactory;
  Runtime$1=IntelliFactory&&IntelliFactory.Runtime;
  $=Global.jQuery;
- Math=Global.Math;
  console=Global.console;
+ Math=Global.Math;
  Date=Global.Date;
  Client.Main=function()
  {
@@ -956,13 +956,21 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   SC$1.People=ListModel.FromSeq(["John","Paul"]);
   SC$1.AoC=Doc.Element("div",[],[Doc.Element("h1",[],[Doc.TextNode("Let's start with Advent of Code")]),Doc.Element("p",[],[Doc.TextNode("Quick test")]),Doc.Button("Grab input day 1 part 1 2019",[],function()
   {
-   var req;
-   req=$.getJSON("https://adventofcode.com/2019/day/1/input",function($1)
+   $.ajax("https://adventofcode.com/2019/day/1/input",{
+    beforeSend:function(req)
+    {
+     req.setRequestHeader("crossDomain","1");
+     return req.setRequestHeader("dataType","jsonp");
+    },
+    crossDomain:true,
+    success:function(data)
+    {
+     return $("#inputText").val(data);
+    }
+   }).done(function()
    {
-    $("#inputText").val($1);
+    return console.log("Done");
    });
-   req.setRequestHeader("crossDomain","1");
-   req.setRequestHeader("dataType","jsonp");
   }),Doc.Element("textarea",[AttrProxy.Create("id","inputText")],[])]);
  };
  Guid.NewGuid=function()
