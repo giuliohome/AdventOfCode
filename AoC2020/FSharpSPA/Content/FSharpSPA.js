@@ -954,7 +954,7 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
  {
   SC$1.$cctor=Global.ignore;
   SC$1.People=ListModel.FromSeq(["John","Paul"]);
-  SC$1.AoC=Doc.Element("div",[],[Doc.Element("h1",[],[Doc.TextNode("Let's start with Advent of Code")]),Doc.Element("p",[],[Doc.TextNode("Quick test")]),Doc.Button("Grab input day 1 part 1 2019",[],function()
+  SC$1.AoC=Doc.Element("div",[],[Doc.Element("h1",[],[Doc.TextNode("Let's start with Advent of Code")]),Doc.Element("p",[],[Doc.TextNode("Quick test")]),Doc.Element("a",[AttrProxy.Create("href","  https://adventofcode.com/2019/day/1"),AttrProxy.Create("target","_blank")],[Doc.TextNode("visit advent of code 2019 day 1")]),Doc.Element("br",[],[]),Doc.Button("Grab input day 1 part 1 2019",[],function()
   {
    $.ajax("Content/test_input.txt",{
     beforeSend:function(req)
@@ -970,7 +970,7 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
    {
     return console.log("Done");
    });
-  }),Doc.Element("textarea",[AttrProxy.Create("id","inputText")],[])]);
+  }),Doc.Element("br",[],[]),Doc.Element("textarea",[AttrProxy.Create("id","inputText"),AttrProxy.Create("style","height:100px")],[])]);
  };
  Guid.NewGuid=function()
  {

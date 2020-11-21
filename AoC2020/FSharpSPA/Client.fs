@@ -27,6 +27,11 @@ module Client =
         div [] [
             h1 [] [text "Let's start with Advent of Code"]
             p [] [text "Quick test"]
+            a [
+                attr.href "  https://adventofcode.com/2019/day/1"
+                attr.target "_blank"
+            ] [text "visit advent of code 2019 day 1"] 
+            br [] []
             Doc.Button "Grab input day 1 part 1 2019" [] (fun () ->
                 let settings = AjaxSettings()
                 settings.BeforeSend <-
@@ -43,7 +48,8 @@ module Client =
                     ) 
                     |> ignore
             )
-            textarea [attr.id "inputText";] []
+            br [] []
+            textarea [attr.id "inputText"; attr.style "height:100px"] []
         ]
 
     [<SPAEntryPoint>]
