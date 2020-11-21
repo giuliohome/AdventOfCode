@@ -39,7 +39,7 @@ module Client =
             a [
                 attr.href "  https://adventofcode.com/2019/day/2"
                 attr.target "_blank"
-            ] [text "visit advent of code 2019 day 1"] 
+            ] [text "visit advent of code 2019 day 2"] 
             br [] []
             Doc.Button "Grab input day 2 part 1 2019" [] (fun () ->
                 let settings = AjaxSettings()
