@@ -25,6 +25,7 @@ module Client =
         ]
     
     let Solve (input:string) = 
+        JQuery.Of("#solved").Val("").Ignore
         let resp = Solver.Solve input
         let text = string resp.[0]
         JQuery.Of("#solved").Val(text).Ignore
@@ -68,6 +69,8 @@ module Client =
                             Doc.Concat [
                             Doc.Button "Solve it!" [] (
                                 fun () ->
+                                    let inputdata =  JQuery.Of("#inputText").Val() |> string
+                                    Console.Log("input data",inputdata)
                                     Solve inputdata
                             )
                             br [] []

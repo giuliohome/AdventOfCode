@@ -535,6 +535,7 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
  Client.Solve=function(input)
  {
   var text;
+  Global.jQuery("#solved").val("");
   text=Global.String(Arrays.get(Solver.Solve(input),0));
   Global.jQuery("#solved").val(text);
  };
@@ -988,11 +989,13 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
    });
   }),Doc.Element("br",[],[]),Doc.Element("textarea",[AttrProxy.Create("id","inputText"),AttrProxy.Create("style","height:100px")],[]),Doc.Element("br",[],[]),Doc.BindView(function(a)
   {
-   var inputdata;
-   return a!=null&&a.$==1?(inputdata=a.$0,Doc.Concat([Doc.Button("Solve it!",[],function()
+   return a!=null&&a.$==1?Doc.Concat([Doc.Button("Solve it!",[],function()
    {
+    var inputdata;
+    inputdata=Global.String($("#inputText").val());
+    console.log("input data",inputdata);
     Client.Solve(inputdata);
-   }),Doc.Element("br",[],[]),Doc.Element("label",[],[Doc.TextNode("Solution")]),Doc.Element("input",[AttrProxy.Create("id","solved")],[])])):Doc.get_Empty();
+   }),Doc.Element("br",[],[]),Doc.Element("label",[],[Doc.TextNode("Solution")]),Doc.Element("input",[AttrProxy.Create("id","solved")],[])]):Doc.get_Empty();
   },inputVar.get_View())]));
  };
  Guid.NewGuid=function()
