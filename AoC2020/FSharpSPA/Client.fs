@@ -18,11 +18,11 @@ module Client =
     // and refresh your browser, no need to recompile unless you add or remove holes.
     type IndexTemplate = Template<"index.html", ClientLoad.FromDocument>
 
-    let People =
-        ListModel.FromSeq [
-            "John"
-            "Paul"
-        ]
+    //let People =
+    //    ListModel.FromSeq [
+    //        "John"
+    //        "Paul"
+    //    ]
     
     let Solve (input:string) = 
         JQuery.Of("#solved").Val("").Ignore
@@ -34,8 +34,8 @@ module Client =
     let AoC = 
         let inputVar = Var.Create<string option> None
         div [] [
-            h1 [] [text "Let's start with Advent of Code"]
-            p [] [text "Quick test"]
+            h2 [] [text "year 2019"]
+            p [] [text "day 2 part 1"]
             a [
                 attr.href "  https://adventofcode.com/2019/day/2"
                 attr.target "_blank"
@@ -88,18 +88,18 @@ module Client =
             .QuickTest(AoC)
             .Doc()
         |> Doc.RunById "aoc"
-        let newName = Var.Create ""
-        IndexTemplate.Main()
-            .ListContainer(
-                People.View.DocSeqCached(fun (name: string) ->
-                    IndexTemplate.ListItem().Name(name).Doc()
-                )
-            )
-            .Name(newName)
-            .Add(fun _ ->
-                People.Add(newName.Value)
-                newName.Value <- ""
-            )
+        //let newName = Var.Create ""
+        //IndexTemplate.Main()
+        //    .ListContainer(
+        //        People.View.DocSeqCached(fun (name: string) ->
+        //            IndexTemplate.ListItem().Name(name).Doc()
+        //        )
+        //    )
+        //    .Name(newName)
+        //    .Add(fun _ ->
+        //        People.Add(newName.Value)
+        //        newName.Value <- ""
+        //    )
 
-            .Doc()
-        |> Doc.RunById "main"
+        //    .Doc()
+        //|> Doc.RunById "main"
