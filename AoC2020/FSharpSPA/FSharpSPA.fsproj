@@ -97,6 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Solver.fs" />
     <Compile Include="Client.fs" />
     <Content Include="index.html" />
     <Content Include="Web.config" />
