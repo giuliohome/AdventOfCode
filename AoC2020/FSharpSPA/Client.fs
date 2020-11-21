@@ -31,14 +31,13 @@ module Client =
                 let settings = AjaxSettings()
                 settings.BeforeSend <-
                         fun (req : JqXHR) (_: AjaxSettings) -> 
-                            req.SetRequestHeader("crossDomain","1")
-                            req.SetRequestHeader("dataType","jsonp") 
+                            req.SetRequestHeader("crossDomain","")
                 settings.CrossDomain <- true
                 settings.Success <- fun data  _  _ ->
                         let data = As<string> data
                         JQuery.Of("#inputText").Val(data).Ignore
 
-                JQuery.Ajax("https://adventofcode.com/2019/day/1/input",settings )
+                JQuery.Ajax("Content/test_input.txt",settings )
                     .Done(
                         fun () -> Console.Log("Done")
                     ) 

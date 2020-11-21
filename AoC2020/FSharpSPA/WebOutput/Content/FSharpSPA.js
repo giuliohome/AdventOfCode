@@ -956,11 +956,10 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   SC$1.People=ListModel.FromSeq(["John","Paul"]);
   SC$1.AoC=Doc.Element("div",[],[Doc.Element("h1",[],[Doc.TextNode("Let's start with Advent of Code")]),Doc.Element("p",[],[Doc.TextNode("Quick test")]),Doc.Button("Grab input day 1 part 1 2019",[],function()
   {
-   $.ajax("https://adventofcode.com/2019/day/1/input",{
+   $.ajax("Content/test_input.txt",{
     beforeSend:function(req)
     {
-     req.setRequestHeader("crossDomain","1");
-     return req.setRequestHeader("dataType","jsonp");
+     return req.setRequestHeader("crossDomain","");
     },
     crossDomain:true,
     success:function(data)
