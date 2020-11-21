@@ -366,7 +366,7 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
 (function()
 {
  "use strict";
- var Global,FSharpSPA,Client,WebSharper,Operators,Obj,UI,Templating,Runtime,Server,TemplateInstance,Arrays,ProviderBuilder,Unchecked,FSharpSPA_Templates,Var$1,ListModel,Handler,Var,SC$1,System,Guid,Collections,List,Client$1,Templates,Doc,JavaScript,Pervasives,ConcreteVar,Snap,Dictionary,HtmlModule,attr,HashSet,Seq,TemplateInitializer,EventTarget,Node,JS,Abbrev,Fresh,View,Object,AttrProxy,CheckedInput,Numeric,DictionaryUtil,Enumerator,T,SC$2,WindowOrWorkerGlobalScope,Docs,DocElemNode,CharacterData,Storage,DomUtility,Attrs,Elt,Prepare,Slice,KeyCollection,An,Settings,Mailbox,SC$3,Attrs$1,Dyn,ArrayStorage,Array,AttrModule,List$1,T$1,Strings,Updates,ValueCollection,Docs$1,RunState,NodeSet,Concurrency,Anims,SC$4,HashSetUtil,BindVar,SC$5,SC$6,AppendList,SC$7,DynamicAttrNode,Scheduler,Easing,AsyncBody,SC$8,CT,HashSet$1,String,CancellationTokenSource,DomNodes,Char,Error,OperationCanceledException,Lazy,SC$9,Queue,LazyExtensionsProxy,LazyRecord,IntelliFactory,Runtime$1,$,console,Math,Date;
+ var Global,FSharpSPA,Client,WebSharper,Operators,Obj,UI,Templating,Runtime,Server,TemplateInstance,Arrays,ProviderBuilder,Unchecked,FSharpSPA_Templates,Var$1,ListModel,Handler,Var,SC$1,System,Guid,Collections,List,Client$1,Templates,Doc,JavaScript,Pervasives,ConcreteVar,Snap,Dictionary,HtmlModule,attr,HashSet,Seq,TemplateInitializer,EventTarget,Node,JS,Abbrev,Fresh,View,Object,AttrProxy,CheckedInput,Numeric,DictionaryUtil,Enumerator,T,SC$2,WindowOrWorkerGlobalScope,Docs,DocElemNode,CharacterData,Storage,DomUtility,Attrs,Elt,Prepare,Slice,KeyCollection,An,Settings,Mailbox,SC$3,Attrs$1,Dyn,ArrayStorage,Array,AttrModule,List$1,T$1,Strings,Updates,ValueCollection,Docs$1,RunState,NodeSet,Concurrency,Anims,SC$4,HashSetUtil,BindVar,SC$5,SC$6,AppendList,SC$7,DynamicAttrNode,Scheduler,Easing,AsyncBody,SC$8,CT,HashSet$1,String,CancellationTokenSource,DomNodes,Char,Queue,Error,OperationCanceledException,Lazy,SC$9,LazyExtensionsProxy,LazyRecord,IntelliFactory,Runtime$1,$,console,Math,Date;
  Global=self;
  FSharpSPA=Global.FSharpSPA=Global.FSharpSPA||{};
  Client=FSharpSPA.Client=FSharpSPA.Client||{};
@@ -466,11 +466,11 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
  CancellationTokenSource=WebSharper.CancellationTokenSource=WebSharper.CancellationTokenSource||{};
  DomNodes=Docs$1.DomNodes=Docs$1.DomNodes||{};
  Char=WebSharper.Char=WebSharper.Char||{};
+ Queue=WebSharper.Queue=WebSharper.Queue||{};
  Error=Global.Error;
  OperationCanceledException=WebSharper.OperationCanceledException=WebSharper.OperationCanceledException||{};
  Lazy=WebSharper.Lazy=WebSharper.Lazy||{};
  SC$9=Global.StartupCode$WebSharper_UI$AppendList=Global.StartupCode$WebSharper_UI$AppendList||{};
- Queue=WebSharper.Queue=WebSharper.Queue||{};
  LazyExtensionsProxy=WebSharper.LazyExtensionsProxy=WebSharper.LazyExtensionsProxy||{};
  LazyRecord=LazyExtensionsProxy.LazyRecord=LazyExtensionsProxy.LazyRecord||{};
  IntelliFactory=Global.IntelliFactory;
@@ -952,9 +952,10 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
  },Var);
  SC$1.$cctor=function()
  {
+  var inputVar;
   SC$1.$cctor=Global.ignore;
   SC$1.People=ListModel.FromSeq(["John","Paul"]);
-  SC$1.AoC=Doc.Element("div",[],[Doc.Element("h1",[],[Doc.TextNode("Let's start with Advent of Code")]),Doc.Element("p",[],[Doc.TextNode("Quick test")]),Doc.Element("a",[AttrProxy.Create("href","  https://adventofcode.com/2019/day/1"),AttrProxy.Create("target","_blank")],[Doc.TextNode("visit advent of code 2019 day 1")]),Doc.Element("br",[],[]),Doc.Button("Grab input day 1 part 1 2019",[],function()
+  SC$1.AoC=(inputVar=Var$1.Create$1(null),Doc.Element("div",[],[Doc.Element("h1",[],[Doc.TextNode("Let's start with Advent of Code")]),Doc.Element("p",[],[Doc.TextNode("Quick test")]),Doc.Element("a",[AttrProxy.Create("href","  https://adventofcode.com/2019/day/1"),AttrProxy.Create("target","_blank")],[Doc.TextNode("visit advent of code 2019 day 1")]),Doc.Element("br",[],[]),Doc.Button("Grab input day 1 part 1 2019",[],function()
   {
    $.ajax("Content/test_input.txt",{
     beforeSend:function(req)
@@ -964,13 +965,24 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
     crossDomain:true,
     success:function(data)
     {
-     return $("#inputText").val(data);
+     $("#inputText").val(data);
+     return inputVar.Set({
+      $:1,
+      $0:data
+     });
     }
    }).done(function()
    {
     return console.log("Done");
    });
-  }),Doc.Element("br",[],[]),Doc.Element("textarea",[AttrProxy.Create("id","inputText"),AttrProxy.Create("style","height:100px")],[])]);
+  }),Doc.Element("br",[],[]),Doc.Element("textarea",[AttrProxy.Create("id","inputText"),AttrProxy.Create("style","height:100px")],[]),Doc.Element("br",[],[]),Doc.BindView(function(a)
+  {
+   var input;
+   return a!=null&&a.$==1?(input=a.$0,Doc.Button("Solve it!",[],function()
+   {
+    console.log(input);
+   })):Doc.get_Empty();
+  },inputVar.get_View())]));
  };
  Guid.NewGuid=function()
  {
@@ -1671,6 +1683,10 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   m=self.document.getElementById(id);
   Unchecked.Equals(m,null)?Operators.FailWith("invalid id: "+id):Doc.Run(m,tr);
  };
+ Doc.get_Empty=function()
+ {
+  return Doc.Mk(null,View.Const());
+ };
  Doc.Run=function(parent,doc)
  {
   Docs.LinkElement(parent,doc.docNode);
@@ -1693,9 +1709,13 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   attrs$1=AttrProxy.Concat(attrs);
   return Elt.New(Doc.Clickable("button",action),attrs$1,Doc.TextNode(caption));
  };
- Doc.get_Empty=function()
+ Doc.BindView=function(f,view)
  {
-  return Doc.Mk(null,View.Const());
+  return Doc.EmbedView(View.Map(f,view));
+ };
+ Doc.Mk=function(node,updates)
+ {
+  return new Doc.New(node,updates);
  };
  Doc.RunInPlace=function(childrenOnly,parent,doc)
  {
@@ -1717,10 +1737,6 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   a$1=Doc.Concat(children);
   return Elt.New(self.document.createElement(name),a,a$1);
  };
- Doc.Mk=function(node,updates)
- {
-  return new Doc.New(node,updates);
- };
  Doc.Clickable=function(elem,action)
  {
   var el;
@@ -1731,12 +1747,6 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
    return action();
   },false);
   return el;
- };
- Doc.Concat=function(xs)
- {
-  var x;
-  x=Array.ofSeqNonCopying(xs);
-  return Array.TreeReduce(Doc.get_Empty(),Doc.Append,x);
  };
  Doc.EmbedView=function(view)
  {
@@ -1750,6 +1760,12 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
    Docs.UpdateEmbedNode(node,doc.docNode);
    return doc.updates;
   },view)));
+ };
+ Doc.Concat=function(xs)
+ {
+  var x;
+  x=Array.ofSeqNonCopying(xs);
+  return Array.TreeReduce(Doc.get_Empty(),Doc.Append,x);
  };
  Doc.TextView=function(txt)
  {
@@ -1848,12 +1864,6 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   };
   this.id=Fresh.Int();
  },ConcreteVar);
- Snap.WhenRun=function(snap,avail,obs)
- {
-  var m;
-  m=snap.s;
-  m==null?obs():m!=null&&m.$==2?(m.$1.push(obs),avail(m.$0)):m!=null&&m.$==3?(m.$0.push(avail),m.$1.push(obs)):avail(m.$0);
- };
  Snap.Map=function(fn,sn)
  {
   var m,res;
@@ -1869,6 +1879,32 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   {
    Snap.MarkDone(res,sn,fn(a));
   },res),res));
+ };
+ Snap.WhenRun=function(snap,avail,obs)
+ {
+  var m;
+  m=snap.s;
+  m==null?obs():m!=null&&m.$==2?(m.$1.push(obs),avail(m.$0)):m!=null&&m.$==3?(m.$0.push(avail),m.$1.push(obs)):avail(m.$0);
+ };
+ Snap.WhenObsoleteRun=function(snap,obs)
+ {
+  var m;
+  m=snap.s;
+  m==null?obs():m!=null&&m.$==2?m.$1.push(obs):m!=null&&m.$==3?m.$1.push(obs):void 0;
+ };
+ Snap.When=function(snap,avail,obs)
+ {
+  var m;
+  m=snap.s;
+  m==null?Snap.Obsolete(obs):m!=null&&m.$==2?(Snap.EnqueueSafe(m.$1,obs),avail(m.$0)):m!=null&&m.$==3?(m.$0.push(avail),Snap.EnqueueSafe(m.$1,obs)):avail(m.$0);
+ };
+ Snap.MarkDone=function(res,sn,v)
+ {
+  var $1;
+  if($1=sn.s,$1!=null&&$1.$==0)
+   Snap.MarkForever(res,v);
+  else
+   Snap.MarkReady(res,v);
  };
  Snap.Map3=function(fn,sn1,sn2,sn3)
  {
@@ -1998,25 +2034,84 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
    Snap.MarkDone(res$1,sn,v);
   },res$1),res$1)):sn;
  };
- Snap.WhenObsoleteRun=function(snap,obs)
+ Snap.Join=function(snap)
  {
-  var m;
-  m=snap.s;
-  m==null?obs():m!=null&&m.$==2?m.$1.push(obs):m!=null&&m.$==3?m.$1.push(obs):void 0;
+  var res;
+  res=Snap.New({
+   $:3,
+   $0:[],
+   $1:[]
+  });
+  Snap.When(snap,function(x)
+  {
+   var y;
+   y=x();
+   Snap.When(y,function(v)
+   {
+    var $1,$2;
+    if(($1=y.s,$1!=null&&$1.$==0)&&($2=snap.s,$2!=null&&$2.$==0))
+     Snap.MarkForever(res,v);
+    else
+     Snap.MarkReady(res,v);
+   },res);
+  },res);
+  return res;
  };
- Snap.When=function(snap,avail,obs)
+ Snap.EnqueueSafe=function(q,x)
  {
-  var m;
-  m=snap.s;
-  m==null?Snap.Obsolete(obs):m!=null&&m.$==2?(Snap.EnqueueSafe(m.$1,obs),avail(m.$0)):m!=null&&m.$==3?(m.$0.push(avail),Snap.EnqueueSafe(m.$1,obs)):avail(m.$0);
- };
- Snap.MarkDone=function(res,sn,v)
- {
-  var $1;
-  if($1=sn.s,$1!=null&&$1.$==0)
-   Snap.MarkForever(res,v);
+  var qcopy,i,$1,o;
+  q.push(x);
+  if(q.length%20===0)
+   {
+    qcopy=q.slice(0);
+    Queue.Clear(q);
+    for(i=0,$1=Arrays.length(qcopy)-1;i<=$1;i++){
+     o=Arrays.get(qcopy,i);
+     typeof o=="object"?function(sn)
+     {
+      if(sn.s)
+       q.push(sn);
+     }(o):function(f)
+     {
+      q.push(f);
+     }(o);
+    }
+   }
   else
-   Snap.MarkReady(res,v);
+   void 0;
+ };
+ Snap.MarkForever=function(sn,v)
+ {
+  var m,qa,i,$1;
+  m=sn.s;
+  if(m!=null&&m.$==3)
+   {
+    sn.s={
+     $:0,
+     $0:v
+    };
+    qa=m.$0;
+    for(i=0,$1=Arrays.length(qa)-1;i<=$1;i++)(Arrays.get(qa,i))(v);
+   }
+  else
+   void 0;
+ };
+ Snap.MarkReady=function(sn,v)
+ {
+  var m,qa,i,$1;
+  m=sn.s;
+  if(m!=null&&m.$==3)
+   {
+    sn.s={
+     $:2,
+     $0:v,
+     $1:m.$1
+    };
+    qa=m.$0;
+    for(i=0,$1=Arrays.length(qa)-1;i<=$1;i++)(Arrays.get(qa,i))(v);
+   }
+  else
+   void 0;
  };
  Snap.Map3Opt1=function(fn,x,y,sn3)
  {
@@ -2072,39 +2167,6 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
    $0:[m.$0,false]
   }:null;
  };
- Snap.MarkForever=function(sn,v)
- {
-  var m,qa,i,$1;
-  m=sn.s;
-  if(m!=null&&m.$==3)
-   {
-    sn.s={
-     $:0,
-     $0:v
-    };
-    qa=m.$0;
-    for(i=0,$1=Arrays.length(qa)-1;i<=$1;i++)(Arrays.get(qa,i))(v);
-   }
-  else
-   void 0;
- };
- Snap.MarkReady=function(sn,v)
- {
-  var m,qa,i,$1;
-  m=sn.s;
-  if(m!=null&&m.$==3)
-   {
-    sn.s={
-     $:2,
-     $0:v,
-     $1:m.$1
-    };
-    qa=m.$0;
-    for(i=0,$1=Arrays.length(qa)-1;i<=$1;i++)(Arrays.get(qa,i))(v);
-   }
-  else
-   void 0;
- };
  Snap.Map2Opt1=function(fn,x,sn2)
  {
   return Snap.Map(function(y)
@@ -2124,52 +2186,6 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   var m;
   m=snap.s;
   m==null?Snap.Obsolete(obs):m!=null&&m.$==2?Snap.EnqueueSafe(m.$1,obs):m!=null&&m.$==3?Snap.EnqueueSafe(m.$1,obs):void 0;
- };
- Snap.EnqueueSafe=function(q,x)
- {
-  var qcopy,i,$1,o;
-  q.push(x);
-  if(q.length%20===0)
-   {
-    qcopy=q.slice(0);
-    Queue.Clear(q);
-    for(i=0,$1=Arrays.length(qcopy)-1;i<=$1;i++){
-     o=Arrays.get(qcopy,i);
-     typeof o=="object"?function(sn)
-     {
-      if(sn.s)
-       q.push(sn);
-     }(o):function(f)
-     {
-      q.push(f);
-     }(o);
-    }
-   }
-  else
-   void 0;
- };
- Snap.Join=function(snap)
- {
-  var res;
-  res=Snap.New({
-   $:3,
-   $0:[],
-   $1:[]
-  });
-  Snap.When(snap,function(x)
-  {
-   var y;
-   y=x();
-   Snap.When(y,function(v)
-   {
-    var $1,$2;
-    if(($1=y.s,$1!=null&&$1.$==0)&&($2=snap.s,$2!=null&&$2.$==0))
-     Snap.MarkForever(res,v);
-    else
-     Snap.MarkReady(res,v);
-   },res);
-  },res);
-  return res;
  };
  Dictionary=Collections.Dictionary=Runtime$1.Class({
   set_Item:function(k,v)
@@ -2885,6 +2901,120 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
  {
   return Numeric.TryParse(s,-2147483648,2147483647,r);
  };
+ View.Const=function(x)
+ {
+  var o;
+  o=Snap.New({
+   $:0,
+   $0:x
+  });
+  return function()
+  {
+   return o;
+  };
+ };
+ View.MapSeqCached=function(conv,view)
+ {
+  return View.MapSeqCachedBy(Global.id,conv,view);
+ };
+ View.Map=function(fn,a)
+ {
+  return View.CreateLazy(function()
+  {
+   return Snap.Map(fn,a());
+  });
+ };
+ View.Sink=function(act,a)
+ {
+  function loop()
+  {
+   Snap.WhenRun(a(),act,function()
+   {
+    Concurrency.scheduler().Fork(loop);
+   });
+  }
+  Concurrency.scheduler().Fork(loop);
+ };
+ View.MapSeqCachedBy=function(key,conv,view)
+ {
+  var state;
+  state=[new Dictionary.New$5()];
+  return View.Map(function(xs)
+  {
+   var prevState,newState,result;
+   prevState=state[0];
+   newState=new Dictionary.New$5();
+   result=Array.mapInPlace(function(x)
+   {
+    var k,res;
+    k=key(x);
+    res=prevState.ContainsKey(k)?prevState.get_Item(k):conv(x);
+    newState.set_Item(k,res);
+    return res;
+   },Arrays.ofSeq(xs));
+   state[0]=newState;
+   return result;
+  },view);
+ };
+ View.Bind=function(fn,view)
+ {
+  return View.Join(View.Map(fn,view));
+ };
+ View.CreateLazy=function(observe)
+ {
+  var lv;
+  lv={
+   c:null,
+   o:observe
+  };
+  return function()
+  {
+   var c,$1;
+   c=lv.c;
+   return c===null?(c=lv.o(),lv.c=c,($1=c.s,$1!=null&&$1.$==0)?lv.o=null:Snap.WhenObsoleteRun(c,function()
+   {
+    lv.c=null;
+   }),c):c;
+  };
+ };
+ View.Map3=function(fn,a,a$1,a$2)
+ {
+  return View.CreateLazy(function()
+  {
+   return Snap.Map3(fn,a(),a$1(),a$2());
+  });
+ };
+ View.Sequence=function(views)
+ {
+  return View.CreateLazy(function()
+  {
+   return Snap.Sequence(Seq.map(function(a)
+   {
+    return a();
+   },views));
+  });
+ };
+ View.Map2=function(fn,a,a$1)
+ {
+  return View.CreateLazy(function()
+  {
+   return Snap.Map2(fn,a(),a$1());
+  });
+ };
+ View.Map2Unit=function(a,a$1)
+ {
+  return View.CreateLazy(function()
+  {
+   return Snap.Map2Unit(a(),a$1());
+  });
+ };
+ View.Join=function(a)
+ {
+  return View.CreateLazy(function()
+  {
+   return Snap.Join(a());
+  });
+ };
  DictionaryUtil.notPresent=function()
  {
   return Operators.FailWith("The given key was not present in the dictionary.");
@@ -2992,6 +3122,18 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   Docs.SyncElemNode(childrenOnly,st.Top);
   st.PreviousNodes=cur;
  };
+ Docs.CreateEmbedNode=function()
+ {
+  return{
+   Current:null,
+   Dirty:false
+  };
+ };
+ Docs.UpdateEmbedNode=function(node,upd)
+ {
+  node.Current=upd;
+  node.Dirty=true;
+ };
  Docs.InsertBeforeDelim=function(afterDelim,doc)
  {
   var p,before;
@@ -3069,18 +3211,6 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   !childrenOnly?Docs.SyncElement(el):void 0;
   Docs.Sync(el.Children);
   Docs.AfterRender(el);
- };
- Docs.CreateEmbedNode=function()
- {
-  return{
-   Current:null,
-   Dirty:false
-  };
- };
- Docs.UpdateEmbedNode=function(node,upd)
- {
-  node.Current=upd;
-  node.Dirty=true;
  };
  Docs.CreateTextNode=function()
  {
@@ -3176,120 +3306,6 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
    DomUtility.RemoveNode(p,e);
   }),DomNodes.Except(DomNodes.DocChildren(el),DomNodes.Children(el.El,Runtime$1.GetOptional(el.Delimiters))));
   ins(el.Children,(m=Runtime$1.GetOptional(el.Delimiters),m!=null&&m.$==1?m.$0[1]:null));
- };
- View.MapSeqCached=function(conv,view)
- {
-  return View.MapSeqCachedBy(Global.id,conv,view);
- };
- View.Const=function(x)
- {
-  var o;
-  o=Snap.New({
-   $:0,
-   $0:x
-  });
-  return function()
-  {
-   return o;
-  };
- };
- View.Sink=function(act,a)
- {
-  function loop()
-  {
-   Snap.WhenRun(a(),act,function()
-   {
-    Concurrency.scheduler().Fork(loop);
-   });
-  }
-  Concurrency.scheduler().Fork(loop);
- };
- View.MapSeqCachedBy=function(key,conv,view)
- {
-  var state;
-  state=[new Dictionary.New$5()];
-  return View.Map(function(xs)
-  {
-   var prevState,newState,result;
-   prevState=state[0];
-   newState=new Dictionary.New$5();
-   result=Array.mapInPlace(function(x)
-   {
-    var k,res;
-    k=key(x);
-    res=prevState.ContainsKey(k)?prevState.get_Item(k):conv(x);
-    newState.set_Item(k,res);
-    return res;
-   },Arrays.ofSeq(xs));
-   state[0]=newState;
-   return result;
-  },view);
- };
- View.Map=function(fn,a)
- {
-  return View.CreateLazy(function()
-  {
-   return Snap.Map(fn,a());
-  });
- };
- View.Map3=function(fn,a,a$1,a$2)
- {
-  return View.CreateLazy(function()
-  {
-   return Snap.Map3(fn,a(),a$1(),a$2());
-  });
- };
- View.Sequence=function(views)
- {
-  return View.CreateLazy(function()
-  {
-   return Snap.Sequence(Seq.map(function(a)
-   {
-    return a();
-   },views));
-  });
- };
- View.Map2=function(fn,a,a$1)
- {
-  return View.CreateLazy(function()
-  {
-   return Snap.Map2(fn,a(),a$1());
-  });
- };
- View.Map2Unit=function(a,a$1)
- {
-  return View.CreateLazy(function()
-  {
-   return Snap.Map2Unit(a(),a$1());
-  });
- };
- View.CreateLazy=function(observe)
- {
-  var lv;
-  lv={
-   c:null,
-   o:observe
-  };
-  return function()
-  {
-   var c,$1;
-   c=lv.c;
-   return c===null?(c=lv.o(),lv.c=c,($1=c.s,$1!=null&&$1.$==0)?lv.o=null:Snap.WhenObsoleteRun(c,function()
-   {
-    lv.c=null;
-   }),c):c;
-  };
- };
- View.Bind=function(fn,view)
- {
-  return View.Join(View.Map(fn,view));
- };
- View.Join=function(a)
- {
-  return View.CreateLazy(function()
-  {
-   return Snap.Join(a());
-  });
  };
  DocElemNode=UI.DocElemNode=Runtime$1.Class({
   Equals:function(o)
@@ -5092,6 +5108,10 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   ok?r.set(x):void 0;
   return ok;
  };
+ Queue.Clear=function(a)
+ {
+  a.splice(0,Arrays.length(a));
+ };
  OperationCanceledException=WebSharper.OperationCanceledException=Runtime$1.Class({},Error,OperationCanceledException);
  OperationCanceledException.New=Runtime$1.Ctor(function(ct)
  {
@@ -5127,10 +5147,6 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   SC$9.Empty={
    $:0
   };
- };
- Queue.Clear=function(a)
- {
-  a.splice(0,Arrays.length(a));
  };
  LazyRecord.New=function(created,evalOrVal,force)
  {
