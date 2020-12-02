@@ -1,5 +1,4 @@
 open System.IO;;
-open System;;
 
 let sr = new StreamReader("input_day02.txt");;
 
