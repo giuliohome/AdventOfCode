@@ -1,9 +1,10 @@
 open System.IO;;
 
-let sr = StreamReader("input.txt");;
+let sr = new StreamReader("input_day01.txt");;
 
-let lines = [ while not sr.EndOfStream do
-     yield sr.ReadLine() ];;
+let lines = [
+    while not sr.EndOfStream do
+        yield sr.ReadLine() ];;
      
 
 let nums = lines |> List.map int;;
