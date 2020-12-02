@@ -18,7 +18,7 @@ let okPsw (nums: string[][]) =
             let mustHave = (x.[0].Split('-').[0] |> int ) - 1
             let mustNot = (x.[0].Split('-').[1] |> int) - 1
             let psw = x.[2]
-            match psw.[mustHave] = letter , (psw.[mustNot] = letter) with
+            match psw.[mustHave] = letter , psw.[mustNot] = letter with
             | true, false -> counter + 1 
             | false, true -> counter + 1
             | _, _ -> counter
