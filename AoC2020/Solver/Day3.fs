@@ -10,15 +10,13 @@ let firstLineTest = liner lines.[0]
 
 
 
-let cols = lines.[0].Length
-let rows = lines.Length
 
 type Move = { right:int; down:int}
 let move1 = {right=3; down=1}
 type State = {result:int; xpos:int; ypos:int; curr_row:int}
 let start ={result=0; xpos=0; ypos=0; curr_row=0}
 
-let step (debug:bool) (state:State) (nums:'a) (move:Move) =
+let step cols rows (move:Move) (debug:bool) (state:State) (nums:'a) =
     if debug 
     then
         Array.iteri (fun i x -> 
@@ -41,25 +39,50 @@ let step (debug:bool) (state:State) (nums:'a) (move:Move) =
     {result=result; xpos=xpos; ypos=ypos; curr_row=state.curr_row + 1}
 
 
-let step1 (debug:bool) (state:State) (nums:'a) =
-    step debug state nums move1
+let step1 cols rows (debug:bool) (state:State) (nums:'a) =
+    step cols rows move1 debug state nums
 
-let step2 (counter:'s) (nums:'a) =
+let phase1 (debug:bool) (lines: string[]) =
+    let cols = lines.[0].Length
+    let rows = lines.Length
+    let s = 
+       (if debug then debugger else solver) 
+           liner (step1 cols rows) start lines 
+    s.result
 
-    counter
+let phase2 (debug:bool) (lines: string[]) =
+    let cols = lines.[0].Length
+    let rows = lines.Length
+    [|
+        {right=1; down=1}
+        {right=3; down=1}
+        {right=5; down=1}
+        {right=7; down=1}
+        {right=1; down=2}
+    |]
+    |> Array.map (fun move -> 
+        let s = 
+            (if debug then debugger else solver) 
+                liner (step cols rows move) start  lines
+        if debug
+        then printfn "result %d" s.result
+        s.result
+       ) 
+    |> Array.fold (*) 1 
 
     
 
 
-let test = @"..##.........##.........##.........##.........##.........##....... 
+let test = @"..##.........##.........##.........##.........##.........##.......
 #..O#...#..#...#...#..#...#...#..#...#...#..#...#...#..#...#...#..
 .#....X..#..#....#..#..#....#..#..#....#..#..#....#..#..#....#..#.
 ..#.#...#O#..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#..#.#...#.#
 .#...##..#..X...##..#..#...##..#..#...##..#..#...##..#..#...##..#.
-..#.##.......#.X#.......#.##.......#.##.......#.##.......#.##..... 
+..#.##.......#.X#.......#.##.......#.##.......#.##.......#.##.....
 .#.#.#....#.#.#.#.O..#.#.#.#....#.#.#.#....#.#.#.#....#.#.#.#....#
 .#........#.#........X.#........#.#........#.#........#.#........#
 #.##...#...#.##...#...#.X#...#...#.##...#...#.##...#...#.##...#...
 #...##....##...##....##...#X....##...##....##...##....##...##....#
 .#..#...#.#.#..#...#.#.#..#...X.#.#..#...#.#.#..#...#.#.#..#...#.#"
             .Replace("O",".").Replace("X","#").Split('\n') 
+            |> Array.map(cleanLine)

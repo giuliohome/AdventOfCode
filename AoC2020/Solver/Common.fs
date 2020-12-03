@@ -3,13 +3,16 @@ module Common
 
 open System.IO
 
+let cleanLine (str:string) =
+    str.Replace("\n","").Replace("\r","").Trim()
+
 let getLines filename =
     let folder = @"C:\dev\FSharp\AoC\AoC2020\"
     let sr = new StreamReader(Path.Combine(folder,  "input_day03.txt"))
 
     [| 
         while not sr.EndOfStream do
-        yield sr.ReadLine() 
+        yield cleanLine <| sr.ReadLine() 
     |]
 
 let analyse liner (lines: string[]) = lines |> Array.map liner
