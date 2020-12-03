@@ -74,4 +74,4 @@ module Solver =
                         Some (updated, updated)
                 ) start
             |> Seq.last
-        result.memory
+        result.memory.[0]

@@ -6,14 +6,13 @@ open WebSharper.JQuery
 open WebSharper.UI
 open WebSharper.UI.Client
 open WebSharper.UI.Templating
+open WebSharper.UI.Html
+open Year2020Day3
+
 
 [<JavaScript>]
 module Client =
-    open WebSharper.UI.Html
-    open WebSharper.UI.Client
-    open WebSharper.JQuery
-    open WebSharper.UI.Client
-
+    
     // The templates are loaded from the DOM, so you just can edit index.html
     // and refresh your browser, no need to recompile unless you add or remove holes.
     type IndexTemplate = Template<"index.html", ClientLoad.FromDocument>
@@ -24,24 +23,24 @@ module Client =
     //        "Paul"
     //    ]
     
-    let Solve (input:string) = 
-        JQuery.Of("#solved").Val("").Ignore
-        let resp = Solver.Solve input
-        let text = string resp.[0]
-        JQuery.Of("#solved").Val(text).Ignore
+    let Solve (MySolver: string -> int) (solved:string) (input:string) = 
+        JQuery.Of("#" + solved).Val("").Ignore
+        let resp = MySolver input
+        let text = string resp
+        JQuery.Of("#" + solved).Val(text).Ignore
                 
-    
-    let AoC = 
-        let inputVar = Var.Create<string option> None
+    let produceSolution 
+        (inputVar:Var<string option>) inputText
+        txtYear txtDate txtUrl txtLink  txtGrab  inputFile MySolver = 
         div [] [
-            h2 [] [text "year 2019"]
-            p [] [text "day 2 part 1"]
+            h2 [] [text txtYear]
+            p [] [text txtDate]
             a [
-                attr.href "  https://adventofcode.com/2019/day/2"
+                attr.href txtUrl
                 attr.target "_blank"
-            ] [text "visit advent of code 2019 day 2"] 
+            ] [text txtLink] 
             br [] []
-            Doc.Button "Grab input day 2 part 1 2019" [] (fun () ->
+            Doc.Button txtGrab [] (fun () ->
                 let settings = AjaxSettings()
                 settings.BeforeSend <-
                         fun (req : JqXHR) (_: AjaxSettings) -> 
@@ -49,17 +48,17 @@ module Client =
                 settings.CrossDomain <- true
                 settings.Success <- fun data  _  _ ->
                         let data = As<string> data
-                        JQuery.Of("#inputText").Val(data).Ignore
+                        JQuery.Of("#" + inputText).Val(data).Ignore
                         inputVar.Set(Some data)
 
-                JQuery.Ajax("Content/input_2019_02.txt",settings )
+                JQuery.Ajax(inputFile,settings )
                     .Done(
                         fun () -> Console.Log("Done")
                     ) 
                     |> ignore
             )
             br [] []
-            textarea [attr.id "inputText"; attr.style "height:100px"] []
+            textarea [attr.id inputText; attr.style "height:100px"] []
             br [] []
             Doc.BindView
                 (
@@ -69,19 +68,55 @@ module Client =
                             Doc.Concat [
                             Doc.Button "Solve it!" [] (
                                 fun () ->
-                                    let inputdata =  JQuery.Of("#inputText").Val() |> string
-                                    Console.Log("input data",inputdata)
-                                    Solve inputdata
+                                    let inputdata =  JQuery.Of("#" + inputText).Val() |> string
+                                    //Console.Log("input data",inputdata)
+                                    Solve MySolver ("solved" + inputText) inputdata
                             )
                             br [] []
                             label [] [text "Solution"]
-                            input [attr.id "solved"] []
+                            input [attr.id ("solved" + inputText)] []
                         ]
 
                 )
                 inputVar.View
         ]
 
+
+    let AoC = 
+        let inputVar2019_02_01 = Var.Create<string option> None
+        let inputVar2020_03_01 = Var.Create<string option> None
+        let inputVar2020_03_02 = Var.Create<string option> None
+        div [] [
+            produceSolution inputVar2019_02_01 "inputText2019_02_01"
+                "year 2019" "day 2 part 1" 
+                "https://adventofcode.com/2019/day/2"
+                "visit advent of code 2019 day 2"
+                "Grab input day 2 part 1 2019"
+                "Content/input_2019_02.txt"  Solver.Solve
+            produceSolution inputVar2020_03_01 "inputText2020_03_01"
+                "year 2020" "day 3 part 1" 
+                "https://adventofcode.com/2020/day/3"
+                "visit advent of code 2020 day 3"
+                "Grab input day 3 part 1 2020"
+                "Content/input_2020_03.txt"  
+                (fun txt -> 
+                    txt.Split('\n')
+                    |> Array.filter (fun l -> l.Trim().Length > 0)
+                    |> Array.map Year2020Common.cleanLine
+                    |> Year2020Day3.phase1)
+            produceSolution inputVar2020_03_02 "inputText2020_03_02"
+                "year 2020" "day 3 part 2" 
+                "https://adventofcode.com/2020/day/3"
+                "visit advent of code 2020 day 3"
+                "Grab input day 3 part 2 2020"
+                "Content/input_2020_03.txt"  
+                (fun txt -> 
+                    txt.Split('\n')
+                    |> Array.filter (fun l -> l.Trim().Length > 0)
+                    |> Array.map Year2020Common.cleanLine
+                    |> Year2020Day3.phase2)
+        
+        ]
     [<SPAEntryPoint>]
     let Main () =
         IndexTemplate.AoC2020()
