@@ -18,7 +18,7 @@ let move1 = {right=3; down=1}
 type State = {result:int; xpos:int; ypos:int; curr_row:int}
 let start ={result=0; xpos=0; ypos=0; curr_row=0}
 
-let step1 (debug:bool) (state:State) (nums:'a) =
+let step (debug:bool) (state:State) (nums:'a) (move:Move) =
     if debug 
     then
         Array.iteri (fun i x -> 
@@ -36,9 +36,13 @@ let step1 (debug:bool) (state:State) (nums:'a) =
         if (nums: bool[]).[state.xpos]
         then state.result + 1
         else state.result
-    let xpos = (state.xpos + move1.right) % cols
-    let ypos = (state.ypos + move1.down) % rows
+    let xpos = (state.xpos + move.right) % cols
+    let ypos = (state.ypos + move.down) % rows
     {result=result; xpos=xpos; ypos=ypos; curr_row=state.curr_row + 1}
+
+
+let step1 (debug:bool) (state:State) (nums:'a) =
+    step debug state nums move1
 
 let step2 (counter:'s) (nums:'a) =
 
