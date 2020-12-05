@@ -42,21 +42,15 @@ let lines =
 
 let move1 = [|[|0..127|]; [|0..8|]|]
 
-let read1 f take _skip array nums = 
-        nums
-        |> Array.fold
-            (fun s t -> 
-                s
-                )
-            array
-        |> Array.head
+let read1 nums = 
+        fields
+        |> Array.forall (fun f -> nums |> List.contains f)
+        |> function | true -> 1 | false -> 0
 
 let step1 read1 cols rows move (state:State) nums =
     
     let result1 = 
-        fields
-        |> Array.forall (fun f -> nums |> List.contains f)
-        |> function | true -> 1 | false -> 0
+        read1 nums
 
     let result = result1 
 
