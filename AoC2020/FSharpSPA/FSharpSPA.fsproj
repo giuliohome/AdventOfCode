@@ -99,6 +99,8 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Year2020Common.fs" />
     <Compile Include="Year2020Day3.fs" />
+    <Compile Include="Year2020Day4.fs" />
+    <Compile Include="Year2020Day5.fs" />
     <Compile Include="Solver.fs" />
     <Compile Include="Client.fs" />
     <Content Include="index.html" />

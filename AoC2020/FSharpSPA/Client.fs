@@ -31,9 +31,9 @@ module Client =
                 
     let produceSolution 
         (inputVar:Var<string option>) inputText
-        txtYear txtDate txtUrl txtLink  txtGrab  inputFile MySolver = 
+        txtDate txtUrl txtLink  txtGrab  inputFile MySolver = 
         div [] [
-            h2 [] [text txtYear]
+            
             p [] [text txtDate]
             a [
                 attr.href txtUrl
@@ -86,15 +86,21 @@ module Client =
         let inputVar2019_02_01 = Var.Create<string option> None
         let inputVar2020_03_01 = Var.Create<string option> None
         let inputVar2020_03_02 = Var.Create<string option> None
+        let inputVar2020_04_01 = Var.Create<string option> None
+        let inputVar2020_04_02 = Var.Create<string option> None
+        let inputVar2020_05_01 = Var.Create<string option> None
+        let inputVar2020_05_02 = Var.Create<string option> None
         div [] [
+            h2 [] [text "year 2019"]
             produceSolution inputVar2019_02_01 "inputText2019_02_01"
-                "year 2019" "day 2 part 1" 
+                "day 2 part 1" 
                 "https://adventofcode.com/2019/day/2"
                 "visit advent of code 2019 day 2"
                 "Grab input day 2 part 1 2019"
                 "Content/input_2019_02.txt"  Solver.Solve
+            h2 [] [text "year 2020"]
             produceSolution inputVar2020_03_01 "inputText2020_03_01"
-                "year 2020" "day 3 part 1" 
+                "day 3 part 1" 
                 "https://adventofcode.com/2020/day/3"
                 "visit advent of code 2020 day 3"
                 "Grab input day 3 part 1 2020"
@@ -105,7 +111,7 @@ module Client =
                     |> Array.map Year2020Common.cleanLine
                     |> Year2020Day3.phase1)
             produceSolution inputVar2020_03_02 "inputText2020_03_02"
-                "year 2020" "day 3 part 2" 
+                "day 3 part 2" 
                 "https://adventofcode.com/2020/day/3"
                 "visit advent of code 2020 day 3"
                 "Grab input day 3 part 2 2020"
@@ -115,6 +121,48 @@ module Client =
                     |> Array.filter (fun l -> l.Trim().Length > 0)
                     |> Array.map Year2020Common.cleanLine
                     |> Year2020Day3.phase2)
+            produceSolution inputVar2020_04_01 "inputText2020_04_01"
+                "day 4 part 1" 
+                "https://adventofcode.com/2020/day/4"
+                "visit advent of code 2020 day 4"
+                "Grab input day 4 part 1 2020"
+                "Content/input_2020_04.txt"  
+                (fun txt -> 
+                    txt.Split('\n')
+                    |> Array.map Year2020Common.cleanLine
+                    |> Year2020Day4.phase1)
+            produceSolution inputVar2020_04_02 "inputText2020_04_02"
+                "day 4 part 2" 
+                "https://adventofcode.com/2020/day/4"
+                "visit advent of code 2020 day 4"
+                "Grab input day 4 part 2 2020"
+                "Content/input_2020_04.txt"  
+                (fun txt -> 
+                    txt.Split('\n')
+                    |> Array.map Year2020Common.cleanLine
+                    |> Year2020Day4.phase2)
+            produceSolution inputVar2020_05_01 "inputText2020_05_01"
+                "day 5 part 1" 
+                "https://adventofcode.com/2020/day/5"
+                "visit advent of code 2020 day 5"
+                "Grab input day 5 part 1 2020"
+                "Content/input_2020_05.txt"  
+                (fun txt -> 
+                    txt.Split('\n')
+                    |> Array.filter (fun l -> l.Trim().Length > 0)
+                    |> Array.map Year2020Common.cleanLine
+                    |> Year2020Day5.phase1)
+            produceSolution inputVar2020_05_02 "inputText2020_05_02"
+                "day 5 part 2" 
+                "https://adventofcode.com/2020/day/5"
+                "visit advent of code 2020 day 5"
+                "Grab input day 5 part 2 2020"
+                "Content/input_2020_05.txt"  
+                (fun txt -> 
+                    txt.Split('\n')
+                    |> Array.filter (fun l -> l.Trim().Length > 0)
+                    |> Array.map Year2020Common.cleanLine
+                    |> Year2020Day5.phase2)
         
         ]
     [<SPAEntryPoint>]
