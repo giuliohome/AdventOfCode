@@ -20,7 +20,7 @@ let analyse liner (lines: string[]) = lines |> Array.map liner
 
 let generator  analyse liner step start lines debug = 
     analyse liner lines 
-    |> Array.fold (step debug) start
+    |> Array.fold step start
 
 let debugger liner step start lines=
     generator  analyse liner step start lines true
