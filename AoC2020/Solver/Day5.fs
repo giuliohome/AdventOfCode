@@ -13,33 +13,26 @@ type State = {result:int; xpos:int; ypos:int; curr_row:int; curr_list: int list}
 let start ={result=0; xpos=0; ypos=0; curr_row=0; curr_list = []}
 
 let step1 cols rows move (state:State) nums =
-    if state.curr_row < state.ypos
-    then {state with curr_row = state.curr_row + 1}
-    else 
+    let read f take _skip array  = 
+        (nums: char[])
+        |> f 7
+        |> Array.fold
+            (fun s t -> 
+                let l0 :int = (s:int[]).Length / 2
+                if t = take
+                then s |> Array.take l0
+                else s |> Array.skip l0
+                )
+            array
+        |> Array.head
+
     let result1 = 
-        (nums: char[])
-        |> Array.take 7
-        |> Array.fold
-            (fun s t -> 
-                let l0 :int = (s:int[]).Length / 2
-                match t with
-                | 'F' -> s |> Array.take l0
-                | 'B' -> s |> Array.skip l0
-                )
+        read Array.take 'F' 'B'
             (move:int[][]).[0]
-        |> Array.head
     let result2 = 
-        (nums: char[])
-        |> Array.skip 7
-        |> Array.fold
-            (fun s t -> 
-                let l0 :int = (s:int[]).Length / 2
-                match t with
-                | 'L' -> s |> Array.take l0
-                | 'R' -> s |> Array.skip l0
-                )
+        read Array.skip 'L' 'R'
             (move:int[][]).[1]
-        |> Array.head
+
     let result = 8*result1 + result2
 
     let curr_list = result :: state.curr_list
