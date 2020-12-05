@@ -1,5 +1,5 @@
 ﻿open Common
-open Day5
+open Day
 
 
 let phase1run = phase1 lines 

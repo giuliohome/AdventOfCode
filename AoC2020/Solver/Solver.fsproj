@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <Compile Include="Common.fs" />
-    <Compile Include="Day5.fs" />
+    <Compile Include="Day.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
