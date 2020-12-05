@@ -42,45 +42,15 @@ let step1 cols rows move (state:State) nums =
         |> Array.head
     let result = 8*result1 + result2
 
-    {state with
-        result= max state.result  result; curr_row=state.curr_row + 1}
-
-let move2 = move1
-let step2 cols rows move (state:State) nums =
-    if state.curr_row < state.ypos
-    then {state with curr_row = state.curr_row + 1}
-    else 
-    let result1 = 
-        (nums: char[])
-        |> Array.take 7
-        |> Array.fold
-            (fun s t -> 
-                let l0 :int = (s:int[]).Length / 2
-                match t with
-                | 'F' -> s |> Array.take l0
-                | 'B' -> s |> Array.skip l0
-                )
-            (move:int[][]).[0]
-        |> Array.head
-    let result2 = 
-        (nums: char[])
-        |> Array.skip 7
-        |> Array.fold
-            (fun s t -> 
-                let l0 :int = (s:int[]).Length / 2
-                match t with
-                | 'L' -> s |> Array.take l0
-                | 'R' -> s |> Array.skip l0
-                )
-            (move:int[][]).[1]
-        |> Array.head
-    let result = 8*result1 + result2
-
     let curr_list = result :: state.curr_list
     
     {state with
         curr_list = curr_list; 
         curr_row=state.curr_row + 1}
+
+let move2 = move1
+let step2 = step1
+    
 
 let phase1 (lines: string[]) =
     let cols = lines.[0].Length
@@ -88,7 +58,8 @@ let phase1 (lines: string[]) =
     let s = 
        solver
            liner (step1 cols rows move1) start lines 
-    s.result
+    s.curr_list
+    |> List.max
 
 let phase2  (lines: string[]) =
     let cols = lines.[0].Length
@@ -96,8 +67,6 @@ let phase2  (lines: string[]) =
     let s = 
        solver
            liner (step2 cols rows move2) start lines 
-    //s.curr_list
-    //|> List.max
     let my =
         [s.curr_list |> List.min .. s.curr_list |> List.max]
         |> List.filter (fun x -> 
