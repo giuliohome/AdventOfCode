@@ -2,7 +2,7 @@ module Day4
 
 open Common
 
-let lines0 = getLines "input_day04.txt"
+let lines0 = getContent "input_day04.txt"
 
 let txtFields = @"byr (Birth Year)
 iyr (Issue Year)
@@ -27,16 +27,8 @@ let liner (line:string)  =
 
 
 let lines =
-    lines0
-    |> Array.fold (fun s t -> 
-        if System.String.IsNullOrWhiteSpace(t)
-        then t :: s
-        else 
-        match s with
-        | (f::r) -> System.String.Join(' ', [f.Trim() ; t.Trim()]) :: r
-        )
-        [""]
-    |> List.toArray
+    lines0.Split([|"\n\n"|], System.StringSplitOptions.None)
+    |> Array.map(fun s -> s.Replace("\n"," "))
 
 // liner lines.[0] |> Array.iter (printfn "%A") 
 

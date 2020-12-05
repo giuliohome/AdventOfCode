@@ -28,20 +28,6 @@ module Year2020Day4 =
         |> Array.map(fun f -> f.Split(':'))
         |> Array.toList
 
-
-    let group lines =
-        //JavaScript.Console.Log(lines)
-        lines
-        |> Array.fold (fun s t -> 
-            if System.String.IsNullOrWhiteSpace(t)
-            then t :: s
-            else 
-            match s with
-            | (f::r) -> System.String.Join(" ", [f.Trim() ; t.Trim()]) :: r
-            )
-            [""]
-        |> List.toArray
-
     // liner lines.[0] |> Array.iter (printfn "%A") 
 
     let move1 = []
@@ -66,7 +52,7 @@ module Year2020Day4 =
 
 
     let phase1 (lines: string[]) =
-        let curr_list = phase (step1 read1) move1 liner (group lines)
+        let curr_list = phase (step1 read1) move1 liner lines
         curr_list |> List.sum
 
     let move2 = move1
@@ -146,6 +132,6 @@ module Year2020Day4 =
             |> function | true -> 1 | false -> 0
 
     let phase2  (lines: string[]) =
-        let curr_list = phase (step2 read2) move2 liner (group lines) 
+        let curr_list = phase (step2 read2) move2 liner lines 
         curr_list |> List.sum
     

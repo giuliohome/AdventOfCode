@@ -128,7 +128,8 @@ module Client =
                 "Grab input day 4 part 1 2020"
                 "Content/input_2020_04.txt"  
                 (fun txt -> 
-                    txt.Split('\n')
+                    txt.Split([|"\n\n"|], System.StringSplitOptions.None)
+                    |> Array.map(fun s -> s.Replace("\n"," "))
                     |> Array.map Year2020Common.cleanLine
                     |> Year2020Day4.phase1)
             produceSolution inputVar2020_04_02 "inputText2020_04_02"
@@ -138,7 +139,8 @@ module Client =
                 "Grab input day 4 part 2 2020"
                 "Content/input_2020_04.txt"  
                 (fun txt -> 
-                    txt.Split('\n')
+                    txt.Split([|"\n\n"|], System.StringSplitOptions.None)
+                    |> Array.map(fun s -> s.Replace("\n"," "))
                     |> Array.map Year2020Common.cleanLine
                     |> Year2020Day4.phase2)
             produceSolution inputVar2020_05_01 "inputText2020_05_01"

@@ -14,6 +14,10 @@ let getLines filename =
         while not sr.EndOfStream do
         yield cleanLine <| sr.ReadLine() 
     |]
+let getContent filename =
+    let folder = @"C:\dev\FSharp\AoC\AoC2020\"
+    let sr = new StreamReader(Path.Combine(folder,  filename))
+    sr.ReadToEnd()
 
 let analyse liner (lines: string[]) = lines |> Array.map liner
 

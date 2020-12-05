@@ -836,10 +836,16 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
    },Strings.SplitChars(txt,["\n"],0))));
   }),Client.produceSolution(inputVar2020_04_01,"inputText2020_04_01","day 4 part 1","https://adventofcode.com/2020/day/4","visit advent of code 2020 day 4","Grab input day 4 part 1 2020","Content/input_2020_04.txt",function(txt)
   {
-   return Year2020Day4.phase1(Arrays.map(Year2020Common.cleanLine,Strings.SplitChars(txt,["\n"],0)));
+   return Year2020Day4.phase1(Arrays.map(Year2020Common.cleanLine,Arrays.map(function(s)
+   {
+    return Strings.Replace(s,"\n"," ");
+   },Strings.SplitStrings(txt,["\n\n"],0))));
   }),Client.produceSolution(inputVar2020_04_02,"inputText2020_04_02","day 4 part 2","https://adventofcode.com/2020/day/4","visit advent of code 2020 day 4","Grab input day 4 part 2 2020","Content/input_2020_04.txt",function(txt)
   {
-   return Year2020Day4.phase2(Arrays.map(Year2020Common.cleanLine,Strings.SplitChars(txt,["\n"],0)));
+   return Year2020Day4.phase2(Arrays.map(Year2020Common.cleanLine,Arrays.map(function(s)
+   {
+    return Strings.Replace(s,"\n"," ");
+   },Strings.SplitStrings(txt,["\n\n"],0))));
   }),Client.produceSolution(inputVar2020_05_01,"inputText2020_05_01","day 5 part 1","https://adventofcode.com/2020/day/5","visit advent of code 2020 day 5","Grab input day 5 part 1 2020","Content/input_2020_05.txt",function(txt)
   {
    return Year2020Day5.phase1(Arrays.map(Year2020Common.cleanLine,Arrays.filter(function(l)
@@ -2024,6 +2030,19 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   if(arr.length===0)
    Operators.FailWith("The input array was empty.");
  };
+ Arrays.foldBack=function(f,arr,zero)
+ {
+  var acc,$1,len,i,$2;
+  acc=zero;
+  len=arr.length;
+  for(i=1,$2=len;i<=$2;i++)acc=f(arr[len-i],acc);
+  return acc;
+ };
+ Arrays.iter=function(f,arr)
+ {
+  var i,$1;
+  for(i=0,$1=arr.length-1;i<=$1;i++)f(arr[i]);
+ };
  Arrays.ofSeq=function(xs)
  {
   var q,o;
@@ -2048,19 +2067,6 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
        o.Dispose();
      }
     }
- };
- Arrays.foldBack=function(f,arr,zero)
- {
-  var acc,$1,len,i,$2;
-  acc=zero;
-  len=arr.length;
-  for(i=1,$2=len;i<=$2;i++)acc=f(arr[len-i],acc);
-  return acc;
- };
- Arrays.iter=function(f,arr)
- {
-  var i,$1;
-  for(i=0,$1=arr.length-1;i<=$1;i++)f(arr[i]);
  };
  Arrays.init=function(size,f)
  {
@@ -2172,14 +2178,14 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   return Seq.sum(Year2020Common.phase(function($1,$2,$3)
   {
    return Runtime$1.Curried(Year2020Day4.step1,2,[Year2020Day4.read1,$1,$2,$3]);
-  },Year2020Day4.move1(),Year2020Day4.liner,Year2020Day4.group(lines)));
+  },Year2020Day4.move1(),Year2020Day4.liner,lines));
  };
  Year2020Day4.phase2=function(lines)
  {
   return Seq.sum(Year2020Common.phase(function($1,$2,$3)
   {
    return((((Year2020Day4.step2())(Year2020Day4.read2))($1))($2))($3);
-  },Year2020Day4.move2(),Year2020Day4.liner,Year2020Day4.group(lines)));
+  },Year2020Day4.move2(),Year2020Day4.liner,lines));
  };
  Year2020Day4.step1=function(read1,cols,rows,move,state,nums)
  {
@@ -2207,27 +2213,6 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   {
    return Strings.SplitChars(f,[":"],0);
   },Strings.SplitChars(line,[" "],0)));
- };
- Year2020Day4.group=function(lines)
- {
-  return Arrays.ofList(Arrays.fold(function(s,t)
-  {
-   if(Strings.IsNullOrWhiteSpace(t))
-    return new T$1({
-     $:1,
-     $0:t,
-     $1:s
-    });
-   else
-    if(s.$==1)
-     return new T$1({
-      $:1,
-      $0:Strings.Join(" ",Arrays.ofSeq([Strings.Trim(s.$0),Strings.Trim(t)])),
-      $1:s.$1
-     });
-    else
-     throw new MatchFailureException.New("Year2020Day4.fs",39,18);
-  },List$1.ofArray([""]),lines));
  };
  Year2020Day4.step2=function()
  {
@@ -2331,7 +2316,7 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
              if(m$7==="cid")
               return true;
              else
-              throw new MatchFailureException.New("Year2020Day4.fs",81,26);
+              throw new MatchFailureException.New("Year2020Day4.fs",67,26);
      }
     else
      return false;
@@ -2923,16 +2908,9 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
  {
   return s.replace(new Global.RegExp("^\\s+"),"").replace(new Global.RegExp("\\s+$"),"");
  };
- Strings.Split=function(s,pat,opts)
+ Strings.SplitStrings=function(s,sep,opts)
  {
-  return opts===1?Arrays.filter(function(x)
-  {
-   return x!=="";
-  },Strings.SplitWith(s,pat)):Strings.SplitWith(s,pat);
- };
- Strings.RegexEscape=function(s)
- {
-  return s.replace(new Global.RegExp("[-\\/\\\\^$*+?.()|[\\]{}]","g"),"\\$&");
+  return Strings.Split(s,new Global.RegExp(Strings.concat("|",Arrays.map(Strings.RegexEscape,sep))),opts);
  };
  Strings.Replace=function(subject,search,replace)
  {
@@ -2944,13 +2922,28 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
   }
   return replaceLoop(subject);
  };
- Strings.SplitWith=function(str,pat)
+ Strings.Split=function(s,pat,opts)
  {
-  return str.split(pat);
+  return opts===1?Arrays.filter(function(x)
+  {
+   return x!=="";
+  },Strings.SplitWith(s,pat)):Strings.SplitWith(s,pat);
+ };
+ Strings.RegexEscape=function(s)
+ {
+  return s.replace(new Global.RegExp("[-\\/\\\\^$*+?.()|[\\]{}]","g"),"\\$&");
+ };
+ Strings.concat=function(separator,strings)
+ {
+  return Arrays.ofSeq(strings).join(separator);
  };
  Strings.ReplaceOnce=function(string,search,replace)
  {
   return string.replace(search,replace);
+ };
+ Strings.SplitWith=function(str,pat)
+ {
+  return str.split(pat);
  };
  Strings.ToCharArray=function(s)
  {
@@ -2959,25 +2952,13 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
    return s[x];
   });
  };
- Strings.IsNullOrWhiteSpace=function(x)
- {
-  return x==null||(new Global.RegExp("^\\s*$")).test(x);
- };
- Strings.Join=function(sep,values)
- {
-  return values.join(sep);
- };
- Strings.EndsWith=function(x,s)
- {
-  return x.substring(x.length-s.length)==s;
- };
  Strings.Substring=function(s,ix,ct)
  {
   return s.substr(ix,ct);
  };
- Strings.concat=function(separator,strings)
+ Strings.EndsWith=function(x,s)
  {
-  return Arrays.ofSeq(strings).join(separator);
+  return x.substring(x.length-s.length)==s;
  };
  Strings.StartsWith=function(t,s)
  {
@@ -3090,17 +3071,6 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
     return res;
    }
  };
- List$1.ofArray=function(arr)
- {
-  var r,i,$1;
-  r=T$1.Empty;
-  for(i=Arrays.length(arr)-1,$1=0;i>=$1;i--)r=new T$1({
-   $:1,
-   $0:Arrays.get(arr,i),
-   $1:r
-  });
-  return r;
- };
  List$1.exists=function(p,x)
  {
   var e,l;
@@ -3174,6 +3144,17 @@ if(!p.closest){p.closest=function(s){var e=this;while(e&&e.nodeType==1){if(e.mat
  List$1.listEmpty=function()
  {
   return Operators.FailWith("The input list was empty.");
+ };
+ List$1.ofArray=function(arr)
+ {
+  var r,i,$1;
+  r=T$1.Empty;
+  for(i=Arrays.length(arr)-1,$1=0;i>=$1;i--)r=new T$1({
+   $:1,
+   $0:Arrays.get(arr,i),
+   $1:r
+  });
+  return r;
  };
  List$1.tail=function(l)
  {
