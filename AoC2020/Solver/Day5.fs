@@ -51,28 +51,26 @@ let step1 cols rows move (state:State) nums =
 let move2 = move1
 let step2 = step1
     
-
-let phase1 (lines: string[]) =
+let phase (lines: string[]) =
     let cols = lines.[0].Length
     let rows = lines.Length
     let s = 
        solver
            liner (step1 cols rows move1) start lines 
     s.curr_list
+
+let phase1 (lines: string[]) =
+    phase lines
     |> List.max
 
 let phase2  (lines: string[]) =
-    let cols = lines.[0].Length
-    let rows = lines.Length
-    let s = 
-       solver
-           liner (step2 cols rows move2) start lines 
+    let curr_list = phase lines 
     let my =
-        [s.curr_list |> List.min .. s.curr_list |> List.max]
+        [curr_list |> List.min .. curr_list |> List.max]
         |> List.filter (fun x -> 
-            (s.curr_list |> List.contains (x - 1) )
-            && (s.curr_list |> List.contains (x + 1))
-            && (s.curr_list |> List.contains x |> not)
+            (curr_list |> List.contains (x - 1) )
+            && (curr_list |> List.contains (x + 1))
+            && ( curr_list |> List.contains x |> not)
         )
     my |> List.iter(printfn "%d")
     my |> List.head
