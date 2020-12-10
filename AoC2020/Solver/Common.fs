@@ -19,6 +19,11 @@ let getContent filename =
     let sr = new StreamReader(Path.Combine(folder,  filename))
     sr.ReadToEnd()
 
+let cleanLastEmptyLine (txt:string) =
+    if  txt.EndsWith("\n")
+    then txt.Substring(0, txt.Length - 1)
+    else txt
+
 let analyse liner (lines: string[]) = lines |> Array.map liner
 
 
@@ -35,10 +40,14 @@ let solver  liner step start lines =
 type State = {result:int; xpos:int; ypos:int; curr_row:int; curr_list: int list}
 let start ={result=0; xpos=0; ypos=0; curr_row=0; curr_list = []}
 
-let phase step move liner (lines: string[]) =
+let phaseState step move liner (lines: string[]) =
     let cols = lines.[0].Length
     let rows = lines.Length
-    let s = 
-       solver
+    solver
            liner (step cols rows move) start lines 
-    s.curr_list
+
+let phase step move liner (lines: string[]) =
+    (phaseState step move liner lines).curr_list
+
+let phaseResult step move liner (lines: string[]) =
+    (phaseState step move liner lines).result
