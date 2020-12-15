@@ -25,11 +25,6 @@ let see1coord (nums: char[][]) (from: int*int) (i:int) (j_arr: int[]) : (int*int
          yield i,j
         |]
 
-let see1 (from: int*int) (nums: char[][]) (i:int) (j_arr: int[]) =
-        [|
-        for j in j_arr do
-         yield nums.[i].[j]
-        |]
 
 let rec see2coord (nums: char[][]) (from: int*int) (i:int) (j_arr: int[]) : (int*int) [] =
         [|
@@ -46,23 +41,7 @@ let rec see2coord (nums: char[][]) (from: int*int) (i:int) (j_arr: int[]) : (int
             else  (i,j)
          | other -> failwith <| sprintf "unexpected %c" other
          |]
-
-let rec see2 (from: int*int) (nums: char[][]) (i:int) (j_arr: int[]) =
-        [|
-        for j in j_arr do
-        yield match nums.[i].[j] with
-         | 'L' -> 'L'
-         | '#' -> '#'
-         | '.' -> 
-            let i0, j0 = from
-            let idelta, jdelta = i - i0, j - j0
-            let inext, jnext = i + idelta, j + jdelta
-            if inext >= 0 && inext <= nums.Length - 1 && jnext >= 0 && jnext <= nums.[0].Length - 1
-            then (see2 (i,j) nums inext [|jnext|]).[0]
-            else '.'
-         | other -> failwith <| sprintf "unexpected %c" other
-         |]
-
+         
          
 let findAdjacentCoord (see: int*int -> int -> int[] -> (int*int)[]) rows cols (i:int) (j:int) : (int*int)[][] =
     [|
@@ -97,41 +76,6 @@ let findAdjacentCoord (see: int*int -> int -> int[] -> (int*int)[]) rows cols (i
     | _, false, _, false -> 
         yield see (i,j) (i-1) [|j-1|]
         yield see (i,j) i  [|j-1; j|]
-    |]
-
-let findAdjacent (see: int*int -> char[][] -> int -> int[] -> char[]) (nums: char[][]) (i:int) (j:int) : char[][] =
-    [|
-    match (i>0), (i<nums.Length - 1), (j>0),(j < nums.[0].Length - 1) with
-    | true, true, true, true -> 
-        yield see (i,j) nums (i-1) [|j-1 .. j+1|]
-        yield see (i,j) nums i  [|j-1; j+1|]
-        yield see (i,j) nums (i+1) [|j-1 .. j+1|]
-    | true, true, false, _ -> 
-        yield see (i,j) nums (i-1) [|j .. j+1|]
-        yield see (i,j) nums i  [|j+1|]
-        yield see (i,j) nums (i+1) [|j .. j+1|]
-    | true, true, _, false -> 
-        yield see (i,j) nums (i-1) [|j-1 .. j|]
-        yield see (i,j) nums i  [|j-1|]
-        yield see (i,j) nums (i+1) [|j-1 .. j|]
-    | false, _, true, true -> 
-        yield see (i,j) nums i  [|j-1; j+1|]
-        yield see (i,j) nums (i+1) [|j-1 .. j+1|]
-    | false, _, false, _ -> 
-        yield see (i,j) nums i  [|j+1|]
-        yield see (i,j) nums (i+1) [|j .. j+1|]
-    | false, _, _, false -> 
-        yield see (i,j) nums i  [|j-1|]
-        yield see (i,j) nums (i+1) [|j-1 .. j|]
-    | _, false, true, true -> 
-        yield see (i,j) nums (i-1) [|j-1 .. j+1|]
-        yield see (i,j) nums i  [|j-1; j+1|]
-    | _, false, false, _ -> 
-        yield see (i,j) nums (i-1) [|j .. j+1|]
-        yield see (i,j) nums i  [|j+1|]
-    | _, false, _, false -> 
-        yield see (i,j) nums (i-1) [|j-1|]
-        yield see (i,j) nums i  [|j-1; j|]
     |]
     
 
