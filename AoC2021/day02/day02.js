@@ -3,13 +3,13 @@
 const fs = require('fs');
 
 // Calling the readFileSync() method
-// to read 'input.txt' file
+// to read 'input.txt' filedata
 const data = fs.readFileSync('./input.txt',
 			{encoding:'utf8', flag:'r'});
 
 // Display the file data
 // console.log(data);
-const cmds = data.split('\n').map(l => l.split(' '));
+const cmds = data.split('\n').filter(x => x.length > 0).map(l => l.split(' '));
 
 
 // loop through the data
@@ -25,8 +25,6 @@ const [hh,vv] = cmds.reduce((prev,curr,idx,arr) => {
 	  	return [h,v-n];
 	  case 'down':
 	  	return [h,v+n];
-	  default:
-	    console.log(cmd);
 	    return [h,v];
 	}}, [0, 0]);
 
@@ -44,8 +42,6 @@ const [hh_2,vv_2, aim_2] = cmds.reduce((prev,curr,idx,arr) => {
 	  	return [h,v,aim-n];
 	  case 'down':
 	  	return [h,v,aim+n];
-	  default:
-	    console.log(cmd);
 	    return [h,v];
 	}}, [0, 0, 0]);
 
