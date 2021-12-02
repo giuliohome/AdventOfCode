@@ -19,7 +19,7 @@ let moves =
   |> Array.map(fun l -> 
     let split = l.Split(" ") 
     let cmd = split.[0]
-    let num = int (split.[1]) 
+    let num = int split.[1] 
     match cmd with
     | "forward" -> Forward num
     | "up" -> Up num
