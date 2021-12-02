@@ -13,7 +13,6 @@ type Move =
 | Forward of int
 | Up of int
 | Down of int
-| Error of string
 
 let moves = 
   lines
@@ -25,7 +24,6 @@ let moves =
     | "forward" -> Forward num
     | "up" -> Up num
     | "down" -> Down num
-    | _ -> Error l
   )
 
 let hor, ver = 
