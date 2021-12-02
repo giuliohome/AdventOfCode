@@ -5,19 +5,20 @@ lines = f.readlines()
 
 cmds = [l.split(' ')  for l in lines]
 
-h = 0
+h = 0	
 v = 0
 aim = 0
 
 for (c,str) in cmds:
   n = int(str)
-  if c == 'forward':
-    h += n
-    v += aim * n
-  if c == 'down':
-    aim += n
-  if c == 'up':
-    aim += - n
+  match c:
+    case 'forward':
+      h += n
+      v += aim * n
+    case 'down':
+      aim += n
+    case 'up':
+      aim += - n
 
 print('part2', h * v)
 
@@ -26,13 +27,13 @@ v = 0
 
 for (c,str) in cmds:
   n = int(str)
-  if c == 'forward':
-    h = h + n
-  if c == 'down':
-    v = v + n
-  if c == 'up':
-    v = v - n
+  match c:
+    case 'forward':
+      h = h + n
+    case 'down':
+      v = v + n
+    case 'up':
+      v = v - n
 
 print('part1', h * v)
-
 
