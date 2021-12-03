@@ -60,7 +60,7 @@ let bitmask (lines: string[]) (idx:int) (mask:string) =
       else 
         lines 
         |> Array.filter (fun line ->
-          String.Join("", line.ToCharArray() |> Array.take idx) = mask 
+          line.Substring(0,idx) = mask 
         )
 
 let mostfreqmasked = greek lines bitmask most_frequent
