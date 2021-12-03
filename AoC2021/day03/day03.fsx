@@ -52,7 +52,7 @@ let asBinary(arr: string) =
 
 let part1 = asBinary(mostfreq) * asBinary(leastfreq)
 
-printfn "part1: %i * %i = %i" (asBinary(mostfreq)) (asBinary(leastfreq)) part1
+printfn "part 1: %i * %i = %i" (asBinary(mostfreq)) (asBinary(leastfreq)) part1
 
 
 let bitmask (lines: string[]) (idx:int) (mask:string) = 
@@ -70,5 +70,5 @@ let leastfreqmasked = greek lines bitmask least_frequent
 let part2x = asBinary mostfreqmasked 
 let part2y = asBinary leastfreqmasked
 let part2 = part2x * part2y
-printfn "part1: %i * %i = %i" part2x part2y part2
+printfn "part 2: %i * %i = %i" part2x part2y part2
 
