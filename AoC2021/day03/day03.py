@@ -1,5 +1,5 @@
 f = open('input.txt','r')
-lines = list(map(lambda l: l.strip(),f.readlines()))
+lines = [l.strip() for l in f.readlines()]
 
 llen = len(lines[0].strip())
 
@@ -12,9 +12,9 @@ def least_frequent(List):
     return min(set(List), key = List.count)
 
 
-gamma = [most_frequent(list(map(lambda l: l[i], lines))) for i in range(0,llen) ]
+gamma = [most_frequent([l[i] for l in lines]) for i in range(0,llen) ]
 
-epsilon = [least_frequent(list(map(lambda l: l[i], lines))) for i in range(0,llen) ]
+epsilon = [least_frequent([l[i] for l in lines]) for i in range(0,llen) ]
 
 
 g = int("".join(gamma),2)
@@ -31,7 +31,7 @@ def matching(i, numi):
 
 def countofdigit(i,c, numi):
   sellines = matching(i - 1, numi) if i >= 1 else lines
-  return len(list(filter(lambda s: s == c,map(lambda l: l[i], sellines))))
+  return len([l[i] for l in sellines if l[i] == c])
 
 def buildnum1():
   num = []
@@ -39,21 +39,25 @@ def buildnum1():
     num += [1 if countofdigit(i,'1',num) >= countofdigit(i,'0',num) else 0]
   return num
 
+def maskbit(i,num):
+  match(countofdigit(i,'0',num) > 0,countofdigit(i,'1',num) > 0):
+  	case (True,False): 
+  	 return 0
+  	case (False,True): 
+  	 return 1
+  	case (True,True): 
+  	  return 0 if countofdigit(i,'0',num) <= countofdigit(i,'1',num) else 1
 
 def buildnum2():
   num = []
   for i in range(0,llen):
-    num += [0 if 
-      (countofdigit(i,'0',num) <= countofdigit(i,'1',num) 
-      and countofdigit(i,'0',num) > 0 and countofdigit(i,'1',num) > 0)
-      else (0 if countofdigit(i,'1',num) == 0
-      else 1)]
+    num += [maskbit(i,num)]
   return num
 
 
 num1 = buildnum1()
  
-num2 =buildnum2()
+num2 = buildnum2()
 
 def findmatch(numi):
   for i in range(0,llen):
