@@ -28,48 +28,47 @@ let least_frequent (map: Map<char,int>) =
   | true, false ->  '0'
   | true, true -> if (map.['0'] <= map.['1']) then '0' else '1'
 
-let greek (lines: string[]) (op_freq: Map<char,int> -> char) = 
+let greek 
+  (lines: string[]) (bitmask: string[] -> int -> string -> string[]) (op_freq: Map<char,int> -> char) 
+  = 
   [|0..lines.[0].ToCharArray().Length - 1|]
-  |> Array.map(fun idx -> 
-      lines|> Array.map (fun l -> l.[idx])
+  |> Array.fold(fun mask idx -> 
+      bitmask lines idx mask
+      |> Array.map (fun l -> l.[idx])
       |> groupFreq
       |> op_freq
-  )
+      |> fun (c:char) -> 
+        mask + string(c)
+  ) ""
+
+let simple lines _ _ = lines
   
-let mostfreq = greek lines most_frequent
+let mostfreq = greek lines simple most_frequent
 
-let leastfreq = greek lines least_frequent
+let leastfreq = greek lines simple least_frequent
 
-let asBinary(arr: char[]) =
-  Convert.ToInt32(String.Join("",arr),2) 
+let asBinary(arr: string) =
+  Convert.ToInt32(String.Join("",arr.ToCharArray()),2) 
 
 let part1 = asBinary(mostfreq) * asBinary(leastfreq)
 
 printfn "part1: %i * %i = %i" (asBinary(mostfreq)) (asBinary(leastfreq)) part1
 
 
-let bitmask (lines: string[]) (op_freq: Map<char,int> -> char) = 
-  [|0..lines.[0].ToCharArray().Length - 1|]
-  |> Array.fold(fun (mask: string) (idx:int) -> 
-      (if idx = 0 then lines 
+let bitmask (lines: string[]) (idx:int) (mask:string) = 
+      if idx = 0 then lines 
       else 
         lines 
         |> Array.filter (fun line ->
           String.Join("", line.ToCharArray() |> Array.take idx) = mask 
-        ))
-      |> Array.map (fun l -> l.[idx])
-      |> groupFreq
-      |> op_freq
-      |> fun (c:char) -> 
-        mask + string(c)
-      ) ""
+        )
 
-let mostfreqmasked = bitmask lines most_frequent
+let mostfreqmasked = greek lines bitmask most_frequent
 
-let leastfreqmasked = bitmask lines least_frequent
+let leastfreqmasked = greek lines bitmask least_frequent
 
-let part2x = asBinary(mostfreqmasked.ToCharArray()) 
-let part2y = asBinary(leastfreqmasked.ToCharArray())
+let part2x = asBinary mostfreqmasked 
+let part2y = asBinary leastfreqmasked
 let part2 = part2x * part2y
 printfn "part1: %i * %i = %i" part2x part2y part2
 
