@@ -33,5 +33,5 @@ for i in range(min(inputs),max(inputs)+1):
 
 print(f'part 2: {min_i} costs {min_s}')
 
-part 2: 464 costs 98363777.0
+# part 2: 464 costs 98363777.0
 
