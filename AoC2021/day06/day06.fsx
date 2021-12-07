@@ -13,22 +13,19 @@ let inputs: int[] =
   lines.[0].Split(",") 
   |> Array.map int
 
-let initial =
+let freq (arr: int[]) (i:int) =
+  arr
+  |> Array.filter ((=) i)
+  |> Array.length |> int64
+
+let init_m (f:int -> int64) =
   [|0..8|]
   |> Array.fold(fun m i ->
-    m |> Map.add i (
-      inputs
-      |> Array.filter ((=) i)
-      |> Array.length |> int64
-      )
+    m |> Map.add i (f i)
   ) Map.empty<int, int64>
 
-
-let m0 =
-  [|0..8|]
-  |> Array.fold(fun m i ->
-    m |> Map.add i 0L
-  ) Map.empty<int, int64>
+let m0 = init_m (fun _ -> 0L)
+let initial = init_m (freq inputs)
 
 let step (m:Map<int,int64>) : Map<int,int64> =
   [|0..8|]
@@ -37,7 +34,6 @@ let step (m:Map<int,int64>) : Map<int,int64> =
     | 0 -> s |> Map.add 6 (s.[6] + m.[0]) |> Map.add 8 (s.[8] + m.[0])
     | _ -> s |> Map.add (i - 1) (s.[i-1] + m.[i])
   ) m0
-
 
 let solve n = [|1..n|] |> Array.fold (fun m _ -> step m) initial
 
