@@ -27,13 +27,13 @@ let init_m (f:int -> int64) =
 let m0 = init_m (fun _ -> 0L)
 let initial = init_m (freq inputs)
 
+let m_add (m:Map<int,int64>) = function
+| 6 -> m.[0] + m.[6+1]
+| 8 -> m.[0]
+| i -> m.[i+1]
+
 let step (m:Map<int,int64>) : Map<int,int64> =
-  [|0..8|]
-  |> Array.fold(fun s i ->
-    match i with 
-    | 0 -> s |> Map.add 6 (s.[6] + m.[0]) |> Map.add 8 (s.[8] + m.[0])
-    | _ -> s |> Map.add (i - 1) (s.[i-1] + m.[i])
-  ) m0
+  init_m (m_add m)
 
 let solve n = [|1..n|] |> Array.fold (fun m _ -> step m) initial
 
