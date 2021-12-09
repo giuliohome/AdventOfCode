@@ -49,26 +49,32 @@ let adj (i:int) (j:int) : (int * int)[] =
 |> Array.sum
 |> printfn "part 1: %i" // 423
 
-let rec sizebasin (i:int) (j:int) : int =
-  if (inputs.[i].[j] < 9) then
-    inputs.[i].[j] <- 9
-    [| 
-      for (ii,jj) in (adj i j) do
-        yield sizebasin ii jj 
-    |]
-    |> Array.sum 
-    |> (+) 1
-  else 0
+let rec sizebasin (counted: Set<int*int>) (i:int) (j:int) : Set<int*int> =
+  if (inputs.[i].[j] < 9 && (counted |> Set.contains (i,j) |> not) ) then
+    let counted = counted |> Set.add (i,j)
+    adj i j
+    |> Array.fold (fun (ret, counted) (ii,jj) ->
+      let next_b = sizebasin counted ii jj
+      (next_b + ret, counted + next_b) 
+      ) (Set.ofArray [|(i,j)|], counted |> Set.add (i,j)) 
+    |> fst
+  else Set.empty
   
 [| for i in [|0..vlen-1|] do
      for j in [|0..hlen-1|] do
        yield (i,j) |]
-|> Array.fold (fun basins (i,j) ->
-  if (inputs.[i].[j] < 9) then
-    Array.append basins [| sizebasin i j |]
-  else basins
-  ) [||]
+|> Array.fold (fun (basins, counted) (i,j) ->
+  if (counted |> Set.contains (i,j) || inputs.[i].[j] = 9)
+  then (basins, counted)
+  else
+  let next_basin =  sizebasin counted i j
+  (
+    Array.append 
+      basins [| next_basin |> Set.count |],
+    Set.union counted next_basin
+  )
+  ) ([||], Set.empty<int*int>)
+|> fst
 |> Array.sortBy (fun i -> -i)
 |> (fun a -> a.[0] * a.[1] * a.[2])
 |> printfn "part2: %i" // 1198704
-
