@@ -15,7 +15,7 @@ let inputs: int[] =
 
 let costs (weight: int -> int -> int) (inp: int[]) (i:int): int =
   inp
-  |> Array.map(fun j -> weight i j)
+  |> Array.map (weight i)
   |> Array.sum
 
 let mini, maxi = inputs |> Array.min, inputs |> Array.max
