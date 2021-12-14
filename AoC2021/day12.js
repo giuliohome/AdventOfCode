@@ -8,7 +8,6 @@ fs.readFile('./input.txt', 'utf8' , async (err, data) => {
     console.error(err)
     return
   }
-  // console.log(data);
   await logic( data );
 })
 
@@ -23,25 +22,6 @@ const lmap12 = (x,y) => {
 
 
 const check1 = (n,path) => n === n.toUpperCase() || !path.includes(n)
-
-/*const check2classic = (n,path) => {
-  if ( n === 'end' ) { 
-    return false;
-  } 
-  if ( n === n.toUpperCase() ) {
-    return true;
-  } else {
-    testpath = path.concat( n );
-    lowernodes = [...(new Set(testpath.filter( ln => ln != ln.toUpperCase() )) )];
-    freq = lowernodes.map(x => { 
-      return { 
-	val: x, count: testpath.filter(f => f === x).length 
-      };
-    } );
-    // console.log('freq %O', freq);
-    return freq.filter(x => x.count > 2).length == 0 && freq.filter(x => x.count == 2).length <=1 ;
-  } 
-}*/
 
 const check2 = (n,path) => {
   if ( n === 'end' ) { 
@@ -61,7 +41,6 @@ const check2 = (n,path) => {
 const logic = async ( data ) => {
   console.log('start of logic\n');
   data.split(/\r?\n/).forEach(line =>  {
-    // console.log(`Line from file: ${line}`);
     if (line) lines.push ( line.split( '-' ) );  // .unshift ( line );
 
   });
@@ -81,7 +60,7 @@ const solve = (checkN) => {
   while (paths.length) {
     path = paths.pop();
     search = path.slice(-1)[0]
-    nxt = lmap.has(search) ?  lmap.get(search) : []; //.filter( n => checkN(n,path) );
+    nxt = lmap.get(search);
     for (n of nxt) {
       if ( n === 'start') {
 	completed.push( path.concat( n ) );
