@@ -21,19 +21,21 @@ const lmap12 = (x,y) => {
 }
 
 
-const check1 = (n,path,dupl) => [n === n.toUpperCase() || !path.includes(n), false]
+const check1 = (n,path,dupl) => {
+  return {ok: n === n.toUpperCase() || !path.includes(n), dupl}
+}
 
 const check2 = (n,path,dupl) => {
   if ( n === 'end' ) { 
-    return [false,dupl];
+    return {ok:false,dupl};
   } 
   if ( n === n.toUpperCase() || !path.includes(n) ) {
-    return [true, dupl];
+    return {ok:true, dupl};
   }
   if (dupl) {
-    return [false, true];
+    return {ok:false, dupl};
   } else {
-    return [true, true];
+    return {ok:true, dupl:true};
   }
 }
 
@@ -59,18 +61,18 @@ const logic = async ( data ) => {
 
 const solve = (checkN) => {
   completed = [];
-  paths = [  [['end'], false]  ];
+  paths = [  {path:['end'], dupl:false}  ];
   while (paths.length) {
-    [path,dupl] = paths.pop();
+    const {path,dupl} = paths.pop();
     search = path[path.length-1]
     // console.log(path,dupl,search,lmap);
     nxt = lmap.get(search) ;
     for (n of nxt) {
       if ( n === 'start') {
-	completed.push( [path.concat(n), dupl] );
+        completed.push( { path:path.concat(n), dupl:dupl} );
       } else {
-	[ok,dupl2] = checkN(n,path,dupl);
-	if ( ok ) paths.push( [path.concat(n),dupl2] ); 
+        const chn = checkN(n,path,dupl);
+        if ( chn.ok ) paths.push( {path:path.concat(n), dupl:chn.dupl} ); 
       }
     }
   }
