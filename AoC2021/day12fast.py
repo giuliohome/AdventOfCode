@@ -43,9 +43,6 @@ for (a,b) in lines:
     lmap12(a,b)
     lmap12(b,a)
 
-def search(end):
-    return lmap[end]
-
 def check1(n, path, dupl):
     return n == n.upper() or not n in path, False
 
@@ -65,7 +62,7 @@ def solve(checkN):
   paths = [(['end'], False)]
   while (paths):
       path, dupl = paths.pop()
-      for n in search(path[-1]): 
+      for n in lmap[path[-1]]: 
           if n == 'start':
               completed.append(path + [n])
               continue
