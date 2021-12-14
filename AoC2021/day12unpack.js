@@ -32,9 +32,10 @@ const check2 = (n,path,dupl) => {
   if ( n === n.toUpperCase() || !path.includes(n) ) {
     return {ok:true, dupl};
   }
-  if (dupl) {
+  // at this point n is lower case and duplicated
+  if (dupl) { // ko, there is already another duplication
     return {ok:false, dupl};
-  } else {
+  } else { // ok, only one lower case duplication
     return {ok:true, dupl:true};
   }
 }
@@ -69,7 +70,7 @@ const solve = (checkN) => {
     nxt = lmap.get(search) ;
     for (n of nxt) {
       if ( n === 'start') {
-        completed.push( { path:path.concat(n), dupl:dupl} );
+        completed.push( { path:path.concat(n), dupl} );
       } else {
         const chn = checkN(n,path,dupl);
         if ( chn.ok ) paths.push( {path:path.concat(n), dupl:chn.dupl} ); 
