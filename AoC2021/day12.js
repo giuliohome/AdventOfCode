@@ -8,16 +8,19 @@ fs.readFile('./input.txt', 'utf8' , async (err, data) => {
     console.error(err)
     return
   }
-  console.log(data);
+  // console.log(data);
   await logic( data );
 })
 
-const search = ( end ) => {
-  return lines.filter(x => x[0] == end).map( x => x[1] )
-    .concat( 
-      lines.filter(x => x[1] == end).map( x => x[0] ) 
-    );
+lmap = new Map()
+const lmap12 = (x,y) => {
+  if (lmap.has(x)) {
+    lmap.set(x, lmap.get(x).concat(y) ) 
+  } else {
+    lmap.set(x, [y])
+  }
 }
+
 
 const check1 = (n,path) => n === n.toUpperCase() || !path.includes(n)
 
@@ -62,9 +65,10 @@ const logic = async ( data ) => {
     if (line) lines.push ( line.split( '-' ) );  // .unshift ( line );
 
   });
-  console.log('lines %O', lines );
-  x = search('end');
-  console.log('show end %O', x);
+  for (x of lines) {
+    lmap12(x[0],x[1]);
+    lmap12(x[1],x[0]);
+  }
   console.log('solve part 1');
   solve(check1);
   console.log('solve part 2');
@@ -76,9 +80,8 @@ const solve = (checkN) => {
   paths = [['end']];
   while (paths.length) {
     path = paths.pop();
-    // console.log('slice %O', search(path.slice(-1)));
-    nxt = search(path.slice(-1)); //.filter( n => checkN(n,path) );
-    // console.log('nxt %O', nxt);
+    search = path.slice(-1)[0]
+    nxt = lmap.has(search) ?  lmap.get(search) : []; //.filter( n => checkN(n,path) );
     for (n of nxt) {
       if ( n === 'start') {
 	completed.push( path.concat( n ) );
