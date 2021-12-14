@@ -13,4 +13,4 @@ a sample of [WebSharper Single Page App Solver](AoC2020/FSharpSPA/Client.fs#L33)
 [see the demo published to netlify](https://elated-northcutt-db884b.netlify.app/)
 
 ### Edit
-As of December 2021, I think that python fast prototyping fits better most of this kind of things, so a just posted a few `.py` scripts lately, not necessarily translated into `.fsx`. 
+As of December 2021, I think that python (as well as node.js) fast prototyping fits better most of this kind of math things, so a just posted a few `.py` (and modern, high quality `.js`) scripts lately, not necessarily translated into `.fsx`. 
