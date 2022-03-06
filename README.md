@@ -14,3 +14,18 @@ a sample of [WebSharper Single Page App Solver](AoC2020/FSharpSPA/Client.fs#L33)
 
 ### Edit
 As of December 2021, I think that python fast prototyping (as well as fast and high level node.js standardized ecmascript) fits better most of this kind of mathematical things, so I've just posted a few `.py` (and modern, high quality, manually crafted `.js`, not necessarily transpiled from `.fsx`) scripts lately. 
+
+## Announcement
+
+![](https://github.com/kgrzybek/modular-monolith-with-ddd/raw/master/docs/Images/glory_to_ukraine.jpg)
+
+Learn, use and benefit from this project only if:
+
+- You **condemn Russia and its military aggression against Ukraine**
+- You **recognize that Russia is an occupant that unlawfully invaded a sovereign state**
+- You **support Ukraine's territorial integrity, including its claims over temporarily occupied territories of Crimea and Donbas**
+- You **reject false narratives perpetuated by Russian state propaganda**
+
+Otherwise, leave this project immediately and educate yourself.
+
+Putin, idi nachuj.
